@@ -1,0 +1,23 @@
+{
+  "name": "de9-adventure",
+  "version": "0.1.0",
+  "private": true,
+  "description": "De9De9 Adventure - raise Nemla, work, grow, and get richer",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 5174 --directory www",
+    "test": "node --test \"test/*.test.js\"",
+    "smoke": "node scripts/smoke.mjs",
+    "sync": "cap sync",
+    "android": "cap sync android && cap open android",
+    "ios": "cap sync ios && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}

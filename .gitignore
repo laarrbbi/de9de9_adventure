@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+
+# Screenshot written by npm run smoke
+smoke.png
