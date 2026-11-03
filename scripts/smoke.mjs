@@ -68,6 +68,22 @@ try {
   await page.tap('.tab[data-tab="garden"]');
   check((await page.textContent('#toasts')).includes('coming'), 'a locked tab to say it is coming');
 
+  // Work: play a job until it ends on its own, then collect the pay.
+  await page.tap('.tab[data-tab="work"]');
+  check(await page.isVisible('.job-go'), 'jobs on the Work screen');
+  const beforeJob = await coins();
+  await page.tap('.job-go');
+  await page.waitForSelector('.play canvas[data-state="ready"]');
+  await page.tap('.play canvas', { position: { x: 30, y: 600 } });
+  await page.waitForSelector('.play canvas[data-state="done"]', { timeout: 60e3 });
+  await page.waitForTimeout(1000);
+  await page.tap('.play canvas');
+  await page.waitForSelector('.play', { state: 'detached' });
+  check((await coins()) > beforeJob, 'a job to pay coins');
+  check(await page.isVisible('.job.done'), 'the job to show as done');
+  await page.screenshot({ path: OUT.replace(/\.png$/, '-work.png') });
+  await page.tap('.tab[data-tab="home"]');
+
   const before = await coins();
   await page.waitForTimeout(500);
   await page.reload();

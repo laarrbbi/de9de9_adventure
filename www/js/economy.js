@@ -26,6 +26,34 @@ export const START = { coins: 200, needs: { hunger: 45, energy: 70, clean: 80, f
 export const xpToNext = (level) => 40 + level * 20;
 export const levelUpCoins = (level) => 50 * level;
 
+// Jobs. Each is a mini-game from De9De9 Play. A run pays from PAY_MIN to
+// PAY_MAX times `pay`, depending on the score against `great`. A job with
+// `needs` waits for that item from the Shop.
+export const JOBS = [
+  { id: 'fixPipe', service: 'travaux', game: 'fix', pay: 150, great: 30, level: 1 },
+  { id: 'deliver', service: 'auto', game: 'run', pay: 120, great: 30, level: 1 },
+  { id: 'wedding', service: 'evenement', game: 'tiles', pay: 300, great: 80, level: 2 },
+  { id: 'buildRoom', service: 'travaux', game: 'stack', pay: 1200, great: 20, level: 1, needs: 'toolbox' },
+];
+export const PAY_MIN = 0.5;
+export const PAY_MAX = 1.5;
+export const JOBS_PER_DAY = 5;
+
+// Each day in a row with at least one job adds to the pay, up to a limit.
+export const STREAK_BONUS = 0.05;
+export const STREAK_BONUS_MAX = 0.25;
+
+// While the needs average under NEEDS_TIRED, jobs pay this much of the usual.
+export const NEEDS_TIRED = 30;
+export const TIRED_PAY = 0.8;
+
+// What a job does to Nemla: tiring, but fun.
+export const JOB_XP = 10;
+export const JOB_EFFECT = { energy: -10, fun: 10 };
+
+// Who posts the jobs: the bug friends Nemla will meet.
+export const CLIENTS = ['snail', 'ladybug', 'bee', 'beetle', 'butterfly', 'cricket'];
+
 // The longest absence the game catches up on, so a phone whose clock jumps
 // ahead can't fast-forward months.
 export const MAX_CATCH_UP_HOURS = 24 * 7;

@@ -16,6 +16,7 @@ export function newGame(now) {
     totalEarned: 0,
     points: { balance: 0, day: '', today: 0 },
     home: { level: 1 },
+    work: { day: '', board: [], earnedToday: 0, done: 0, streak: 0, lastWorked: '' },
     stats: { meals: 0, baths: 0, plays: 0, naps: 0 },
   };
 }

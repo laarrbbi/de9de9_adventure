@@ -11,6 +11,8 @@ const PATHS = {
   friends: '<ellipse cx="12" cy="14" rx="6" ry="7"/><circle cx="12" cy="5.5" r="2.5"/><path d="M12 8v13"/><path d="M6 11L3 9M6 15H3M18 11l3-2M18 15h3"/>',
   map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  flame: '<path d="M12 3c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 4 0-3-.5-6 1-9z"/>',
 };
 
 const STROKE = 'fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';

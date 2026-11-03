@@ -175,13 +175,13 @@ the save survives closing the app.
 
 **Phase 1: the core**
 
-- [ ] **M0. Setup.** Repo skeleton, Capacitor, assets copied from De9De9
+- [x] **M0. Setup.** Repo skeleton, Capacitor, assets copied from De9De9
   Play, the save system, test runner, smoke test.
   *Try it:* the app opens and Nemla is there.
-- [ ] **M1. Nemla at home.** The anthill scene, the HUD, the tab bar, the
+- [x] **M1. Nemla at home.** The anthill scene, the HUD, the tab bar, the
   4 needs going down over real time, food, bed, bath, and fun.
   *Try it:* close the app tonight; tomorrow Nemla is hungry.
-- [ ] **M2. Work.** The job board, the mini-game engine, and the first
+- [x] **M2. Work.** The job board, the mini-game engine, and the first
   3 jobs: Nemla Fix, Nemla Tiles, Nemla Run. Pay by score, 5 jobs a day,
   work streak. *Try it:* play a job and watch the coins go up.
 - [ ] **M3. Garden and market.** Plots, 3 crops (mint, wheat, tomato), real
@@ -230,7 +230,8 @@ These are starting points to tune with real players. All of them live in
 |---|---|---|---|---|
 | Fix a leaking pipe | Travaux | Nemla Fix | 150 | |
 | Play music at a wedding | Événement | Nemla Tiles | 300 | Level 2 |
-| Deliver oranges | Auto | Nemla Run | 120 | Scooter |
+| Deliver oranges | Auto | Nemla Run | 120 | (by leaf cart) |
+| Express delivery | Auto | Nemla Run | 250 | Scooter |
 | Repair a phone | Multimédia | De9a Match | 200 | Level 3 |
 | Give a haircut | Beauté | Nemla Chop | 180 | Level 4 |
 | Coach a jump class | Sport | De9a Jump | 160 | Olive Hills |
@@ -271,7 +272,7 @@ pickup truck.
 
 | Perk | What it does |
 |---|---|
-| Scooter | Unlocks delivery jobs |
+| Scooter | Unlocks express deliveries |
 | Little car | +2 jobs a day |
 | Pickup truck | The market buys 3× more |
 | Sports car | +10% pay on every job |

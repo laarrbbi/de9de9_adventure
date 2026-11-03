@@ -30,6 +30,7 @@
   --gold: #ffc93c;
   --gold-ink: #8a5800;
   --gold-soft: #fff3cf;
+  --orange: #ff8515;
   --ink: #2f3f47;
   --muted: #56696f;
   --line: #e1ebe9;
@@ -255,6 +256,129 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
 .goal .bar { background: #fbe3a6; }
 .goal .bar i { background: #f0a500; }
 .goal-note { display: block; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--gold-ink); }
+
+/* Work */
+.work { display: flex; flex-direction: column; gap: 12px; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.stat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.stat-label { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.stat-value { display: flex; align-items: center; gap: 5px; }
+.stat-value b { font-family: var(--display); font-weight: 600; font-size: 20px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat-note { font-size: 11px; font-weight: 800; color: var(--gold-ink); }
+.flame { color: var(--orange); display: grid; }
+
+.jobs { display: flex; flex-direction: column; gap: 8px; }
+.jobs:empty { display: none; }
+.jobs-title { margin: 6px 0 0; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.jobs-note { margin: 0; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
+.job {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.job-icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--page);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.job-icon img { width: 38px; height: 38px; display: block; }
+.job-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.job-text b { font-size: 14px; font-weight: 800; }
+.job-text small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.job-go {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--gold);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+.job-go:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.job-go:active { transform: scale(0.96); }
+.job-paid, .job-pay {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 10px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+}
+.job-paid { color: var(--teal-ink); }
+.job.done { box-shadow: none; background: #eaf3f1; }
+.job.done .job-icon img { opacity: 0.6; }
+.job.locked { box-shadow: none; background: #e9efee; border: 2px dashed #c3cfcd; }
+.job.locked .job-pay { color: var(--muted); }
+
+.real-life {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 18px;
+  background: var(--red-soft);
+}
+.real-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.real-text small { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red-ink); }
+.real-text b { font-size: 13px; font-weight: 800; }
+.real-life a {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 13px;
+  background: #c8343c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* A job's mini-game, over everything */
+.play { position: fixed; inset: 0; z-index: 20; background: var(--ink); }
+.play canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.play-close {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: calc(12px + env(safe-area-inset-left, 0px));
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(47, 63, 71, 0.25);
+}
 
 /* Tab bar */
 .tabs {

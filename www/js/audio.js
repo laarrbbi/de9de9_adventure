@@ -119,4 +119,5 @@ export const sfx = {
   wake: () => [262, 330, 392].forEach((freq, i) => later(i * 120, () => beep(freq, 0.15, 'triangle', 0.06))),
   giggle: () => [880, 990, 1100].forEach((freq, i) => later(i * 70, () => beep(freq, 0.06, 'sine', 0.06))),
   levelUp: () => [523, 659, 784, 1047].forEach((freq, i) => later(i * 110, () => beep(freq, 0.14, 'triangle', 0.07))),
+  coins: () => [988, 1319, 1568].forEach((freq, i) => later(i * 80, () => beep(freq, 0.09, 'triangle', 0.07))),
 };

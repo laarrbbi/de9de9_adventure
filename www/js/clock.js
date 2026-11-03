@@ -22,6 +22,20 @@ export function isNight(now) {
   return hour >= 20 || hour < 6;
 }
 
+// The calendar day, as 2026-11-03, for things that reset at midnight.
+export function dayKey(t) {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export function yesterdayKey(t) {
+  const d = new Date(t);
+  d.setDate(d.getDate() - 1);
+  return dayKey(d.getTime());
+}
+
+export const msToMidnight = (now) => new Date(now).setHours(24, 0, 0, 0) - now;
+
 export function clockTime(now) {
   const d = new Date(now);
   return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;

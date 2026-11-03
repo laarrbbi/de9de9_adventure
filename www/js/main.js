@@ -1,12 +1,15 @@
 // Starts the game: loads the save, catches up on the time away, draws the
 // screens and keeps the clock running. Every change to the save goes
-// through act(), which redraws and saves.
+// through here, which redraws and saves.
 import { load, save } from './state.js';
 import { advance } from './clock.js';
 import * as care from './care.js';
+import { refreshBoard, jobById, payRange, ticket, finishJob } from './jobs.js';
 import { mountHud } from './ui/hud.js';
 import { mountHome } from './ui/home.js';
+import { mountWork } from './ui/work.js';
 import { mountTabs } from './ui/tabs.js';
+import { openGame } from './ui/play.js';
 import { toast } from './ui/toast.js';
 import { sfx } from './audio.js';
 import { t, duration } from './text.js';
@@ -28,15 +31,32 @@ const storage = (() => {
 
 const { state, fresh } = load(storage, Date.now());
 const away = advance(state, Date.now()).ms;
+refreshBoard(state, Date.now());
 
+const screenEl = document.getElementById('screen');
+screenEl.innerHTML = '<div data-screen="home"></div><div data-screen="work" hidden></div>';
+const screens = {
+  home: mountHome(screenEl.querySelector('[data-screen="home"]'), { onAct: act }),
+  work: mountWork(screenEl.querySelector('[data-screen="work"]'), { onStart: startJob }),
+};
 const hud = mountHud(document.getElementById('hud'));
-const home = mountHome(document.getElementById('screen'), { onAct: act });
-mountTabs(document.getElementById('tabs'), { onLocked: (tab) => soon(t(`tab.${tab}`)) });
+const tabs = mountTabs(document.getElementById('tabs'), {
+  open: Object.keys(screens),
+  onSelect: show,
+  onLocked: (tab) => soon(t(`tab.${tab}`)),
+});
+
+function show(name) {
+  sfx.tap();
+  for (const el of screenEl.children) el.hidden = el.dataset.screen !== name;
+  tabs.setActive(name);
+  screenEl.scrollTop = 0;
+}
 
 function act(name) {
   if (name === 'talk') {
     sfx.giggle();
-    home.react('talk');
+    screens.home.react('talk');
     return;
   }
   if (name === 'garden') return soon(t('tab.garden'));
@@ -50,12 +70,44 @@ function act(name) {
     return;
   }
   sfx[CARE[name]]();
-  home.react(name);
-  for (const reached of result.levels) {
+  screens.home.react(name);
+  celebrate(result.levels);
+  changed();
+}
+
+function startJob(slot) {
+  const entry = state.work.board[slot];
+  if (!entry || entry.done) return;
+  const job = jobById(entry.job);
+  const pass = ticket(state, slot);
+  let levels = [];
+  sfx.tap();
+  openGame(job.game, {
+    name: t(`job.${job.id}`),
+    client: t('play.for', { client: t(`client.${entry.client}`) }),
+    pay: payRange(job),
+  }, {
+    onEnd(score) {
+      const result = finishJob(state, pass, score, Date.now());
+      if (!result) return { coins: 0, rating: 'ok', bonus: 0, tired: false };
+      levels = result.levels;
+      changed();
+      return result;
+    },
+    onLeave(finished) {
+      if (!finished) return toast(t('play.stopped'));
+      sfx.coins();
+      celebrate(levels);
+      render();
+    },
+  });
+}
+
+function celebrate(levels) {
+  for (const reached of levels) {
     setTimeout(sfx.levelUp, 400);
     toast(t('toast.level', reached), 'gold');
   }
-  changed();
 }
 
 function soon(name) {
@@ -64,8 +116,9 @@ function soon(name) {
 }
 
 function render() {
+  const now = Date.now();
   hud.update(state);
-  home.update(state, Date.now());
+  for (const screen of Object.values(screens)) screen.update(state, now);
 }
 
 let saveTimer = null;
@@ -86,11 +139,13 @@ function persist() {
 }
 
 setInterval(() => {
-  if (advance(state, Date.now()).wokeUp) {
+  const now = Date.now();
+  const { wokeUp } = advance(state, now);
+  if (wokeUp) {
     sfx.wake();
     toast(t('toast.woke'));
-    persist();
   }
+  if (wokeUp || refreshBoard(state, now)) persist();
   render();
 }, 1000);
 setInterval(persist, SAVE_EVERY);
@@ -102,6 +157,7 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', persist);
 
+tabs.setActive('home');
 render();
 persist();
 if (fresh) toast(t('toast.hello'));
