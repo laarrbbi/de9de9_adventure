@@ -58,7 +58,7 @@ Work a job → earn coins → buy equipment → take bigger jobs → buy the dre
 1. Nemla wakes up in a little hole, hungry. Tap the food. (Teaches needs.)
 2. A snail needs a leak fixed. Play Nemla Fix. +150 coins. (Teaches jobs.)
 3. Plant mint. The first one grows in 2 minutes. Harvest and sell it.
-4. Buy a second plot.
+4. Plant wheat in the second plot, and save up for a third plot (500).
 5. A snail visits the garden. Give it a gift and it becomes your first friend.
 6. A goal appears: "Save 2,000 coins to move into the Anthill."
 
@@ -151,8 +151,13 @@ number so old saves can be upgraded:
   coins: 1250, totalEarned: 6400,
   points: { balance: 640, day: '2026-10-31', today: 3 },
   home: { level: 2, rooms: ['bedroom', 'kitchen'] },
-  plots: [{ id: 1, place: 'home', crop: 'mint', plantedAt: 0, readyAt: 0 }],
-  inventory: { mint: 8, wheat: 12 },
+  garden: {
+    plots: [{ crop: 'mint', plantedAt: 0, readyAt: 0 }, { crop: null, plantedAt: 0, readyAt: 0 }],
+    seed: 'mint',                       // the seed picked on the Garden screen
+    barn: { mint: 8, wheat: 12, tomato: 0 },
+    planted: { mint: 3, wheat: 5, tomato: 0 },
+    market: { day: '2026-10-31', sold: 12 },
+  },
   owned: { cars: ['leafCart', 'scooter'], car: 'scooter', equipment: ['wateringCan'], clothes: [] },
   places: ['home'],
   friends: { beetle: { level: 3, hearts: 3, calledOn: '2026-10-31' } },
@@ -184,7 +189,7 @@ the save survives closing the app.
 - [x] **M2. Work.** The job board, the mini-game engine, and the first
   3 jobs: Nemla Fix, Nemla Tiles, Nemla Run. Pay by score, 5 jobs a day,
   work streak. *Try it:* play a job and watch the coins go up.
-- [ ] **M3. Garden and market.** Plots, 3 crops (mint, wheat, tomato), real
+- [x] **M3. Garden and market.** Plots, 3 crops (mint, wheat, tomato), real
   growth time, harvest, the market, buying plots.
   *Try it:* plant before bed, sell in the morning.
 
@@ -260,7 +265,8 @@ These are starting points to tune with real players. All of them live in
 
 Short crops earn more per hour if you come back often. Long crops are for
 nights and busy days. The market buys up to 30 crops a day, 90 with the
-pickup truck.
+pickup truck. Each harvest gives XP: mint 2, wheat 3, tomato 5. A ripe crop
+never goes bad; it waits in its plot.
 
 ### Things to buy
 
@@ -282,7 +288,9 @@ pickup truck.
 | Workshop | Bug friends do 2 jobs a day for you |
 | Each new home | More rooms, more plots, +1 job a day |
 
-- **Plots:** 500 each, +100 for each plot after that.
+- **Plots:** a new game has 2. The third costs 500, and each one after it
+  100 more. Each home has room for more: 6 at the little hole, then 9, 12,
+  16 and 20.
 - **Places:** Olive Hills 2,000 (Level 5), Fig Mountains 8,000 (Level 10),
   Sea Coast 20,000 (Level 15), Orange Groves 45,000 (Level 20), Date Oasis
   90,000 (Level 25).

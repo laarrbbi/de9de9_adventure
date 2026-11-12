@@ -1,7 +1,7 @@
 // The save: one JSON object in localStorage. `storage` is passed in (it is
 // localStorage in the game and a stand-in in tests), and every access is
 // guarded because localStorage can throw in private browsing.
-import { START } from './economy.js';
+import { START, CROPS, START_PLOTS } from './economy.js';
 
 export const SAVE_KEY = 'de9adventure.save';
 export const VERSION = 1;
@@ -17,9 +17,19 @@ export function newGame(now) {
     points: { balance: 0, day: '', today: 0 },
     home: { level: 1 },
     work: { day: '', board: [], earnedToday: 0, done: 0, streak: 0, lastWorked: '' },
-    stats: { meals: 0, baths: 0, plays: 0, naps: 0 },
+    garden: {
+      plots: Array.from({ length: START_PLOTS }, () => ({ crop: null, plantedAt: 0, readyAt: 0 })),
+      seed: CROPS[0].id,
+      barn: perCrop(),
+      planted: perCrop(),
+      market: { day: '', sold: 0 },
+    },
+    stats: { meals: 0, baths: 0, plays: 0, naps: 0, harvests: 0, sold: 0 },
   };
 }
+
+// A count for every crop, so a crop added later starts at 0 in old saves too.
+const perCrop = () => Object.fromEntries(CROPS.map((crop) => [crop.id, 0]));
 
 // One function per old version, each returning the save one version newer.
 // Empty while there is only version 1.

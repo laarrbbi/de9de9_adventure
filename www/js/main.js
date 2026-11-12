@@ -5,14 +5,16 @@ import { load, save } from './state.js';
 import { advance } from './clock.js';
 import * as care from './care.js';
 import { refreshBoard, jobById, payRange, ticket, finishJob } from './jobs.js';
+import * as garden from './garden.js';
 import { mountHud } from './ui/hud.js';
 import { mountHome } from './ui/home.js';
+import { mountGarden } from './ui/garden.js';
 import { mountWork } from './ui/work.js';
 import { mountTabs } from './ui/tabs.js';
 import { openGame } from './ui/play.js';
 import { toast } from './ui/toast.js';
 import { sfx } from './audio.js';
-import { t, duration } from './text.js';
+import { t, num, duration, countdown } from './text.js';
 
 const SAVE_DELAY = 300;
 const SAVE_EVERY = 15e3;
@@ -34,9 +36,10 @@ const away = advance(state, Date.now()).ms;
 refreshBoard(state, Date.now());
 
 const screenEl = document.getElementById('screen');
-screenEl.innerHTML = '<div data-screen="home"></div><div data-screen="work" hidden></div>';
+screenEl.innerHTML = ['home', 'garden', 'work'].map((name, i) => `<div data-screen="${name}"${i ? ' hidden' : ''}></div>`).join('');
 const screens = {
   home: mountHome(screenEl.querySelector('[data-screen="home"]'), { onAct: act }),
+  garden: mountGarden(screenEl.querySelector('[data-screen="garden"]'), { onAct: gardenAct }),
   work: mountWork(screenEl.querySelector('[data-screen="work"]'), { onStart: startJob }),
 };
 const hud = mountHud(document.getElementById('hud'));
@@ -59,20 +62,104 @@ function act(name) {
     screens.home.react('talk');
     return;
   }
-  if (name === 'garden') return soon(t('tab.garden'));
+  if (name === 'garden') return show('garden');
   if (name === 'bed') name = state.nemla.sleeping ? 'wake' : 'sleep';
   if (!(name in CARE)) return;
 
   const result = care[name](state);
-  if (!result.ok) {
-    sfx.no();
-    toast(t(`why.${result.why}`));
-    return;
-  }
+  if (refused(result)) return;
   sfx[CARE[name]]();
   screens.home.react(name);
   celebrate(result.levels);
   changed();
+}
+
+// Garden actions, from the Garden screen.
+function gardenAct(name, arg) {
+  const now = Date.now();
+  const g = state.garden;
+  const cropName = (id) => t(`crop.${id}`);
+
+  if (name === 'seed') {
+    if (g.seed === arg) return;
+    sfx.tap();
+    g.seed = arg;
+    return changed();
+  }
+  if (name === 'seedLocked') {
+    sfx.no();
+    return toast(t('why.level', garden.cropById(arg)));
+  }
+  if (name === 'plot') {
+    const plot = g.plots[arg];
+    if (!plot) return;
+    if (!plot.crop) {
+      if (refused(garden.plant(state, arg, g.seed, now))) return;
+      sfx.plant();
+      return changed();
+    }
+    if (!garden.isReady(plot, now)) {
+      sfx.tap();
+      return toast(t('toast.growing', { crop: cropName(plot.crop), time: countdown(plot.readyAt - now) }));
+    }
+    const result = garden.harvest(state, arg, now);
+    if (refused(result)) return;
+    sfx.harvest();
+    changed();
+    screens.garden.react('plot', arg, t('garden.harvested', { crop: cropName(result.crop) }));
+    return celebrate(result.levels);
+  }
+  if (name === 'harvestAll') {
+    const result = garden.harvestAll(state, now);
+    if (refused(result)) return;
+    sfx.harvest();
+    changed();
+    toast(t('toast.harvested', { n: result.count }));
+    return celebrate(result.levels);
+  }
+  if (name === 'buyPlot') {
+    const result = garden.buyPlot(state);
+    if (refused(result)) return;
+    sfx.plant();
+    changed();
+    return toast(t('toast.plot'));
+  }
+  if (name === 'sell' || name === 'sellAll') {
+    const result = name === 'sell' ? garden.sell(state, arg, now) : garden.sellAll(state, now);
+    if (refused(result)) return;
+    sfx.coins();
+    changed();
+    if (name === 'sell') screens.garden.react('crop', arg, `+${num(result.coins)}`);
+    if (name === 'sellAll' || result.short) {
+      toast(t(result.short ? 'toast.soldShort' : 'toast.sold', { n: result.count, coins: num(result.coins) }));
+    }
+  }
+}
+
+// Says why an action didn't happen. Returns whether it was refused.
+function refused(result) {
+  if (result.ok) return false;
+  sfx.no();
+  toast(t(`why.${result.why}`, result));
+  return true;
+}
+
+// Tells the player when crops finish growing while the game is open.
+let lastReady = garden.readyCount(state, Date.now());
+
+function noticeReady(now) {
+  const ready = garden.readyCount(state, now);
+  if (ready > lastReady) {
+    sfx.ready();
+    toast(readyMessage(ready, now));
+  }
+  lastReady = ready;
+}
+
+function readyMessage(ready, now) {
+  if (ready > 1) return t('toast.readyMany', { n: ready });
+  const plot = state.garden.plots.find((p) => garden.isReady(p, now));
+  return t('toast.readyOne', { crop: t(`crop.${plot.crop}`) });
 }
 
 function startJob(slot) {
@@ -118,6 +205,7 @@ function soon(name) {
 function render() {
   const now = Date.now();
   hud.update(state);
+  tabs.setBadge('garden', garden.readyCount(state, now));
   for (const screen of Object.values(screens)) screen.update(state, now);
 }
 
@@ -146,6 +234,7 @@ setInterval(() => {
     toast(t('toast.woke'));
   }
   if (wokeUp || refreshBoard(state, now)) persist();
+  noticeReady(now);
   render();
 }, 1000);
 setInterval(persist, SAVE_EVERY);
@@ -161,4 +250,7 @@ tabs.setActive('home');
 render();
 persist();
 if (fresh) toast(t('toast.hello'));
-else if (away >= WELCOME_AFTER) toast(t('toast.back', { time: duration(away) }));
+else if (away >= WELCOME_AFTER) {
+  toast(t('toast.back', { time: duration(away) }));
+  if (lastReady) toast(readyMessage(lastReady, Date.now()));
+}

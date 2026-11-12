@@ -43,6 +43,11 @@ const en = {
   'why.clean': 'Nemla is already clean.',
   'why.fun': 'Nemla is already having fun.',
   'why.rested': 'Nemla is not tired.',
+  'why.level': 'This unlocks at Level {level}.',
+  'why.room': 'No more room here. A bigger home will have more plots.',
+  'why.market': 'The market is full for today. It buys again tomorrow.',
+  'why.nothing': 'Nothing to sell yet.',
+  'why.nothingReady': 'Nothing is ready yet.',
 
   'toast.hello': 'Salam! This is Nemla, and Nemla is hungry. Tap Eat.',
   'toast.back': 'Welcome back! You were away {time}.',
@@ -50,6 +55,13 @@ const en = {
   'toast.level': 'Level {level}! +{coins} coins',
   'toast.noSave': "This browser can't save the game.",
   'toast.soon': '{name} is coming in the next update.',
+  'toast.readyOne': '{crop} is ready to harvest.',
+  'toast.readyMany': '{n} crops are ready to harvest.',
+  'toast.harvested': 'Harvested {n} crops. Sell them at the market.',
+  'toast.sold': 'Sold {n} for {coins} coins.',
+  'toast.soldShort': 'Sold {n} for {coins} coins. The market is full for today.',
+  'toast.plot': 'New plot! Plant something in it.',
+  'toast.growing': '{crop} is ready in {time}.',
 
   'work.title': 'Work',
   'work.sub': 'Do jobs like a De9De9 pro. Play well and they pay more.',
@@ -71,6 +83,37 @@ const en = {
   'work.realTitle': 'In real life too',
   'work.realText': 'Pros find clients and earn money on De9De9.',
   'work.realLink': 'Open De9De9',
+
+  'garden.title': 'Garden',
+  'garden.sub': 'Crops grow even while the app is closed.',
+  'garden.seeds': 'Seeds',
+  'garden.sells': 'Sells for {coins}',
+  'garden.seedLabel': '{crop} seeds: {coins} coins, grows in {grow}, sells for {sell}',
+  'garden.seedLocked': '{crop}: unlocks at Level {level}',
+  'garden.plant': 'Plant',
+  'garden.plantLabel': 'Empty plot. Plant {crop} for {coins} coins',
+  'garden.harvest': 'Harvest',
+  'garden.readyLabel': '{crop} is ready. Tap to harvest',
+  'garden.growingLabel': '{crop}, ready in {time}',
+  'garden.harvestAll': 'Harvest all {n}',
+  'garden.buyLabel': 'Buy a new plot for {coins} coins',
+  'garden.noRoom': 'Your little hole has room for {n} plots. A bigger home will have more.',
+  'garden.harvested': '+1 {crop}',
+
+  'crop.mint': 'Mint',
+  'crop.wheat': 'Wheat',
+  'crop.tomato': 'Tomato',
+
+  'market.title': 'Market',
+  'market.left': 'Buys {n} more today',
+  'market.closed': 'Full for today',
+  'market.count': '{crop} ×{n}',
+  'market.price': '{coins} coins each',
+  'market.sell': 'Sell',
+  'market.sellLabel': 'Sell {n} {crop} for {coins} coins',
+  'market.sellAll': 'Sell all',
+  'market.empty': 'Harvest your crops, then sell them here.',
+  'market.fullNote': 'The market is full for today. It buys again in {time}.',
 
   'job.fixPipe': 'Fix a leaking pipe',
   'job.deliver': 'Deliver 20 oranges',
@@ -120,8 +163,11 @@ const en = {
   'tab.friends': 'Friends',
   'tab.map': 'Map',
   'tab.locked': '{name}, coming soon',
+  'tab.badge': '{name}, {n} ready',
 
+  'time.sec': '{n} s',
   'time.min': '{n} min',
+  'time.hmin': '{h} h {m} min',
   'time.hours': '{n} h',
   'time.days': '{n} days',
 };
@@ -152,4 +198,15 @@ export function duration(ms) {
   const hours = Math.round(min / 60);
   if (hours < 48) return t('time.hours', { n: hours });
   return t('time.days', { n: Math.round(hours / 24) });
+}
+
+// Time left on a countdown, rounded up so it never says 0 before the end.
+export function countdown(ms) {
+  const sec = Math.max(1, Math.ceil(ms / 1000));
+  if (sec < 60) return t('time.sec', { n: sec });
+  const min = Math.ceil(sec / 60);
+  if (min < 60) return t('time.min', { n: min });
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? t('time.hmin', { h, m }) : t('time.hours', { n: h });
 }

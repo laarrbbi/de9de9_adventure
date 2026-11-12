@@ -1,5 +1,6 @@
 // Opens the game in a phone-sized headless browser, taps through the home
-// screen, reloads to check the save, and fails on any error in the page.
+// screen, plays a job, grows and sells a crop, reloads to check the save,
+// and fails on any error in the page.
 // Writes a screenshot to smoke.png (or the path given as the first argument).
 //
 // Needs Playwright with Chromium. If it isn't installed globally:
@@ -65,7 +66,7 @@ try {
   await page.tap('.need[data-need="energy"]');
   check(!(await page.$eval('.home-svg', (svg) => svg.classList.contains('asleep'))), 'Nemla to wake up');
 
-  await page.tap('.tab[data-tab="garden"]');
+  await page.tap('.tab[data-tab="shop"]');
   check((await page.textContent('#toasts')).includes('coming'), 'a locked tab to say it is coming');
 
   // Work: play a job until it ends on its own, then collect the pay.
@@ -82,6 +83,27 @@ try {
   check((await coins()) > beforeJob, 'a job to pay coins');
   check(await page.isVisible('.job.done'), 'the job to show as done');
   await page.screenshot({ path: OUT.replace(/\.png$/, '-work.png') });
+
+  // Garden: the sign at home leads there. Plant mint (the first one takes
+  // 2 minutes), move the clock on, harvest it and sell it.
+  await page.tap('.tab[data-tab="home"]');
+  await page.tap('.obj[data-act="garden"]');
+  check(await page.isVisible('.garden'), 'the garden sign to open the Garden');
+  check(await page.isVisible('.seed.on[data-arg="mint"]'), 'mint seeds picked at the start');
+  const beforePlant = await coins();
+  await page.tap('.plot.empty');
+  check((await coins()) === beforePlant - 10, 'planting mint to cost 10 coins');
+  check(await page.isVisible('.plot.growing'), 'the plot to show the mint growing');
+  await page.clock.setFixedTime(Date.now() + 3 * 60e3);
+  await page.waitForSelector('.plot.ready', { timeout: 5e3 });
+  check(await page.isVisible('.tab[data-tab="garden"] .tab-badge'), 'a badge on the Garden tab when a crop is ready');
+  await page.tap('.plot.ready');
+  check(await page.isVisible('.barn-row[data-crop="mint"]'), 'the harvest to go to the barn');
+  const beforeSell = await coins();
+  await page.tap('.sell[data-arg="mint"]');
+  check((await coins()) === beforeSell + 25, 'selling a mint to pay 25 coins');
+  check(!(await page.isVisible('.tab[data-tab="garden"] .tab-badge')), 'no badge once harvested');
+  await page.screenshot({ path: OUT.replace(/\.png$/, '-garden.png') });
   await page.tap('.tab[data-tab="home"]');
 
   const before = await coins();

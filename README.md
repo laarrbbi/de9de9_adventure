@@ -25,11 +25,11 @@ isn't installed globally).
 |---|---|
 | `www/js/main.js` | Start-up: loads the save, catches up on time away, runs the clock |
 | `www/js/economy.js` | Every rate, price and reward. Tune the game here |
-| `www/js/needs.js`, `care.js`, `jobs.js`, `level.js`, `wallet.js`, `clock.js` | Game rules, no DOM, tested in `test/` |
+| `www/js/needs.js`, `care.js`, `jobs.js`, `garden.js`, `level.js`, `wallet.js`, `clock.js` | Game rules, no DOM, tested in `test/` |
 | `www/js/state.js` | The save in localStorage, and upgrades for old saves |
 | `www/js/text.js` | Every word the player reads, ready for translation |
-| `www/js/art/` | The drawings: Nemla's body, the home scene, icons |
-| `www/js/ui/` | The screens: top bar, home, work, the game layer, tab bar, messages |
+| `www/js/art/` | The drawings: Nemla's body, the home scene, crops, icons |
+| `www/js/ui/` | The screens: top bar, home, garden, work, the game layer, tab bar, messages |
 | `www/js/minigames/` | De9De9 Play's engine and games, adapted to be played as jobs |
 
 ## Native apps
@@ -53,6 +53,15 @@ npm run android       # syncs www/ and opens Android Studio
   mini-game (Nemla Fix, Nemla Run, Nemla Tiles from level 2). Pay goes from
   half to one and a half of the job's price by score, plus a work streak
   bonus; a tired Nemla earns less. Jobs tire Nemla and are fun.
+- **M3 Garden and market:** 2 plots to start, room for 6 at the little
+  hole. Mint, wheat and tomatoes (from level 3) grow in real time, also
+  while the app is closed, and wait until you harvest them. The barn keeps
+  the harvest; the market buys 30 crops a day. A badge on the Garden tab
+  and a message say when crops are ready.
 
 To add a job: add it to `JOBS` in `economy.js` and its name to `text.js`. A
 new mini-game goes in `www/js/minigames/` and in `minigames/index.js`.
+
+To add a crop: add it to `CROPS` in `economy.js`, its name to `text.js`
+(`crop.<id>`), and its drawing to `PLANTS` in `www/js/art/crops.js`. Old
+saves get a barn slot for it by themselves.

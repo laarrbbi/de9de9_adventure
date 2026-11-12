@@ -57,6 +57,7 @@ html, body {
 }
 
 button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
 
 .app {
   height: 100%;
@@ -361,6 +362,162 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
   text-decoration: none;
 }
 
+/* Garden */
+.garden { display: flex; flex-direction: column; gap: 12px; }
+h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.1; }
+.harvest-all, .sell, .sell-all {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--gold);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.harvest-all { color: var(--ink); }
+.harvest-all:active, .sell:active, .sell-all:active, .seed:active { transform: scale(0.96); }
+.sell:disabled, .sell-all:disabled { background: #e9efee; color: var(--muted); cursor: default; transform: none; }
+.harvest-all:focus-visible, .sell:focus-visible, .sell-all:focus-visible, .seed:focus-visible, .plot:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.seeds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.seed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px 10px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  text-align: center;
+  cursor: pointer;
+}
+.seed.on { border-color: var(--teal); background: var(--teal-soft); }
+.seed.locked { background: #e9efee; box-shadow: none; border: 2px dashed #c3cfcd; }
+.seed.locked .seed-icon svg { opacity: 0.45; }
+.seed-icon { position: relative; width: 40px; height: 34px; display: grid; place-items: center; }
+.seed-lock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.seed-text { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.seed-text b { font-size: 14px; font-weight: 800; }
+.seed-text small { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.seed-text .seed-sell { color: var(--gold-ink); }
+.seed.on .seed-text small { color: var(--teal-ink); }
+.seed.on .seed-text .seed-sell { color: var(--gold-ink); }
+
+.field {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 8px;
+  padding: 12px 10px;
+  border-radius: 24px;
+  background: #cdeac0;
+}
+.plot {
+  position: relative;
+  min-height: 98px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+}
+.plot-art { display: block; width: 100%; height: auto; }
+.plot:active .plot-art { transform: scale(0.97); }
+.plot-act {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.plot.ready .plot-act { background: var(--gold); color: var(--ink); animation: hop 1s ease-in-out infinite; }
+.plot-info { display: flex; justify-content: space-between; gap: 4px; padding: 0 3px; font-size: 11px; font-weight: 800; }
+.plot-info b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plot-time { flex: none; color: #3d6b36; font-variant-numeric: tabular-nums; }
+.plot .bar { height: 6px; margin: 0 3px; background: rgba(255, 255, 255, 0.75); }
+.plot .bar i { background: #4f9e4c; }
+.plot.buy {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px dashed #8fbf80;
+  background: rgba(255, 255, 255, 0.35);
+}
+.plot-new { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.85); color: #3a7d36; }
+.plot-act.short { background: #6b7c80; }
+.plot.spare { min-height: 84px; cursor: default; border: 2px dashed #bfe0b2; }
+.sparkle { animation: twinkle 1.4s ease-in-out infinite; }
+.field-note { margin: -2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
+
+.market {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.market-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.market-left { font-size: 12px; font-weight: 800; color: var(--teal-ink); }
+.market-left.closed { color: var(--red-ink); }
+.barn { display: flex; flex-direction: column; }
+.barn:empty { display: none; }
+.barn-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.barn-icon { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #eef6ea; }
+.barn-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.barn-text b { font-size: 14px; font-weight: 800; }
+.barn-text small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.sell-all { margin-top: 6px; }
+.market-note { margin: 0; font-size: 12px; font-weight: 700; color: var(--muted); }
+
+.pop-text {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  font: 600 17px var(--display);
+  color: #2e7d4f;
+  white-space: nowrap;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+  pointer-events: none;
+  animation: pop-up 1.2s ease-out forwards;
+}
+
 /* A job's mini-game, over everything */
 .play { position: fixed; inset: 0; z-index: 20; background: var(--ink); }
 .play canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -408,6 +565,22 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
 .tab-icon { position: relative; width: 46px; height: 30px; border-radius: 15px; display: grid; place-items: center; }
 .tab.on { color: var(--teal-ink); }
 .tab.on .tab-icon { background: var(--teal-soft); }
+.tab-badge {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--card);
+}
 .tab-lock {
   position: absolute;
   right: 5px;
@@ -464,6 +637,11 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
 @keyframes nudge { 30% { transform: translateX(-3px); } 70% { transform: translateX(3px); } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @keyframes float-up { from { opacity: 1; } to { opacity: 0; transform: translateY(-36px); } }
+@keyframes pop-up {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to { opacity: 0; transform: translate(-50%, -38px); }
+}
+@keyframes twinkle { 50% { opacity: 0.25; } }
 @keyframes bite { to { transform: scale(0); opacity: 0.3; } }
 @keyframes bubble {
   0% { opacity: 0; transform: scale(0.3); }
@@ -476,6 +654,6 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nemla-bob, .eyelids, .badge-in, .zzz text { animation: none; }
+  .nemla-bob, .eyelids, .badge-in, .zzz text, .sparkle, .plot.ready .plot-act { animation: none; }
   .nemla.bounce { animation: none; }
 }

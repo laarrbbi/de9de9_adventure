@@ -54,6 +54,25 @@ export const JOB_EFFECT = { energy: -10, fun: 10 };
 // Who posts the jobs: the bug friends Nemla will meet.
 export const CLIENTS = ['snail', 'ladybug', 'bee', 'beetle', 'butterfly', 'cricket'];
 
+// Crops. `grow` is in minutes of real time; `first`, if set, is how long the
+// very first one takes, so a new player sees a harvest right away. `xp` is
+// paid on harvest, `sell` by the market for each one.
+export const CROPS = [
+  { id: 'mint', seed: 10, grow: 30, first: 2, sell: 25, xp: 2, level: 1 },
+  { id: 'wheat', seed: 15, grow: 60, sell: 40, xp: 3, level: 1 },
+  { id: 'tomato', seed: 25, grow: 180, sell: 80, xp: 5, level: 3 },
+];
+
+// Plots. A new game has START_PLOTS; each home has room for a few more
+// (little hole, anthill, big house, villa, palace). The first plot bought
+// costs 500 and each one after it 100 more.
+export const START_PLOTS = 2;
+export const PLOTS_BY_HOME = [6, 9, 12, 16, 20];
+export const plotPrice = (owned) => 500 + 100 * Math.max(0, owned - START_PLOTS);
+
+// The market buys this many crops a day, whatever the crop.
+export const MARKET_PER_DAY = 30;
+
 // The longest absence the game catches up on, so a phone whose clock jumps
 // ahead can't fast-forward months.
 export const MAX_CATCH_UP_HOURS = 24 * 7;
