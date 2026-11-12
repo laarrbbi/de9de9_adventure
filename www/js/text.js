@@ -314,3 +314,6 @@ export function countdown(ms) {
   const m = min % 60;
   return m ? t('time.hmin', { h, m }) : t('time.hours', { n: h });
 }
+
+// Every word and saying, for tools that build the Godot game's text.
+export { en as WORDS, sayings as SAYINGS };

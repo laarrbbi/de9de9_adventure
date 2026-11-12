@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1140" viewBox="0 0 360 380">
+  <rect fill="#c9eef2" width="360" height="74"/>
+  
+  <g class="day-only">
+    <circle cx="322" cy="30" r="14" fill="#ffd76a"/>
+    <ellipse cx="150" cy="28" rx="24" ry="9" fill="#fff"/>
+    <ellipse cx="168" cy="23" rx="14" ry="10" fill="#fff"/>
+  </g>
+  
+  <rect y="64" width="360" height="12" fill="#7cc576"/>
+  <rect y="74" width="360" height="306" fill="#a8714a"/>
+  <g fill="#94603c">
+    <circle cx="28" cy="96" r="4"/><circle cx="334" cy="92" r="3"/><circle cx="8" cy="250" r="5"/>
+    <circle cx="352" cy="200" r="4"/><circle cx="350" cy="370" r="3"/><circle cx="10" cy="372" r="4"/>
+  </g>
+  <path d="M120 64l3-8 3 8M136 64l2-6 3 6M300 64l3-9 3 9M330 64l2-6 3 6" stroke="#4f9e4c" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M150 77Q250 -16 350 77Z" fill="#c98f5a" stroke="#a8714a" stroke-width="2"/>
+      <g fill="#b07a4a"><circle cx="210" cy="56" r="3"/><circle cx="292" cy="44" r="3.5"/><circle cx="318" cy="64" r="2.5"/><circle cx="246" cy="36" r="2.5"/></g>
+      <path d="M238 76V58a12 12 0 0 1 24 0V76Z" fill="#5b3a22"/>
+      <rect x="240" y="74" width="20" height="44" fill="#e6c49a"/>
+      <path d="M40 76q4 14-2 24M96 76q-3 10 3 18M318 76q-4 12 2 22" stroke="#7a4f2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <clipPath id="room-clip"><path d="M60 110H300A44 44 0 0 1 344 154V316A44 44 0 0 1 300 360H60A44 44 0 0 1 16 316V154A44 44 0 0 1 60 110Z"/></clipPath>
+  <path d="M60 110H300A44 44 0 0 1 344 154V316A44 44 0 0 1 300 360H60A44 44 0 0 1 16 316V154A44 44 0 0 1 60 110Z" fill="#f6e0bb"/>
+  <g clip-path="url(#room-clip)"></g>
+  <rect x="44" y="126" width="50" height="40" rx="3" fill="#e7464e" stroke="#8b5e3c" stroke-width="3"/>
+  
+      <rect x="272" y="160" width="56" height="5" rx="2" fill="#8b5e3c"/>
+      <path d="M284 160h12l-2-12h-8Z" fill="#c98f5a"/><path d="M290 148q-6-10 0-16q6 6 0 16M290 148q8-6 12-2" stroke="#4f9e4c" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="314" cy="154" r="6" fill="#ffc93c" stroke="#d99a00" stroke-width="1.5"/>
+      
+  <ellipse cx="180" cy="350" rx="110" ry="8" fill="#e7464e"/>
+  <ellipse cx="180" cy="350" rx="96" ry="5" fill="none" stroke="#ffc93c" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="150" y1="110" x2="150" y2="124" stroke="#8b5e3c" stroke-width="2"/>
+  <circle class="lamp-glow" cx="150" cy="131" r="16" fill="#fff3a6" opacity="0.45"/>
+  <circle cx="150" cy="131" r="6" fill="#fff3a6" stroke="#e5c34a" stroke-width="2"/></svg>

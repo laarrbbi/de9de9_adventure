@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1140" viewBox="0 0 360 380">
+      <rect fill="#c9eef2" width="360" height="380"/>
+      
+  <g class="day-only">
+    <circle cx="322" cy="30" r="14" fill="#ffd76a"/>
+    <ellipse cx="150" cy="28" rx="24" ry="9" fill="#fff"/>
+    <ellipse cx="168" cy="23" rx="14" ry="10" fill="#fff"/>
+  </g>
+  
+      <rect x="4" y="96" width="352" height="284" fill="#f7efe0" stroke="#d9c9ab" stroke-width="2"/>
+      <path d="M0 104L180 30L360 104Z" fill="#e7464e" stroke="#b42f38" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M60 80H300M110 60H250" stroke="#c8343c" stroke-width="2"/>
+      <rect x="262" y="40" width="22" height="34" fill="#c98f5a" stroke="#8b5e3c" stroke-width="2"/>
+  <clipPath id="room-clip"><path d="M30 110H330A14 14 0 0 1 344 124V346A14 14 0 0 1 330 360H30A14 14 0 0 1 16 346V124A14 14 0 0 1 30 110Z"/></clipPath>
+  <path d="M30 110H330A14 14 0 0 1 344 124V346A14 14 0 0 1 330 360H30A14 14 0 0 1 16 346V124A14 14 0 0 1 30 110Z" fill="#e3f3f0"/>
+  <g clip-path="url(#room-clip)"><rect x="16" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="32" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="48" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="64" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="80" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="96" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="112" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="128" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="144" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="160" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="176" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="192" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="208" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="224" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="240" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="256" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="272" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="288" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="304" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="320" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="336" y="96" width="7" height="270" fill="#d3ebe7"/><rect x="16" y="336" width="328" height="24" fill="#d4a373"/><path d="M16 336H344M60 336v24M130 336v24M210 336v24M290 336v24" stroke="#00000022" stroke-width="1.5"/></g>
+  <rect x="44" y="126" width="50" height="40" rx="3" fill="#e7464e" stroke="#8b5e3c" stroke-width="3"/>
+  
+  <path fill="#c9eef2" d="M265 122H319A3 3 0 0 1 322 125V173A3 3 0 0 1 319 176H265A3 3 0 0 1 262 173V125A3 3 0 0 1 265 122Z" stroke="#fff" stroke-width="5"/>
+  <path d="M292 122V176M262 151.7H322" stroke="#fff" stroke-width="3"/>
+  <path d="M265 122H319A3 3 0 0 1 322 125V173A3 3 0 0 1 319 176H265A3 3 0 0 1 262 173V125A3 3 0 0 1 265 122Z" fill="none" stroke="#2f3f47" stroke-width="1.5"/>
+  <ellipse cx="180" cy="350" rx="110" ry="8" fill="#65cbc4"/>
+  <ellipse cx="180" cy="350" rx="96" ry="5" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="150" y1="110" x2="150" y2="124" stroke="#2f3f47" stroke-width="1.5"/>
+  <circle class="lamp-glow" cx="150" cy="136" r="20" fill="#fff3a6" opacity="0.4"/>
+  <path d="M136 136L143 124H157L164 136Z" fill="#ff8515" stroke="#2f3f47" stroke-width="1.5"/>
+  <circle cx="150" cy="138" r="3.5" fill="#fff3a6"/></svg>

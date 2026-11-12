@@ -1,0 +1,6 @@
+# Godot's cache and the builds.
+.godot/
+/build/
+*.apk
+*.aab
+*.keystore

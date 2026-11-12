@@ -78,3 +78,6 @@ export function inBed({ x, y, width }) {
     ${eyelids(x, y, width, 'eyelids-closed')}
   </g>`;
 }
+
+// Nemla's parts, for tools that draw Nemla in layers (the Godot game).
+export const NEMLA_PARTS = { BODY, EYELIDS, ON_HEAD, ON_BODY, HEAD_RATIO };

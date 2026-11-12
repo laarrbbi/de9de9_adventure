@@ -93,22 +93,45 @@ day for free. Home problems come with a small "In real life? Open De9De9" link.
 
 ### Technology
 
-Same tools as De9De9 Play, so the same people can work on both:
+**The game is native, built with Godot 4.7** (decided after step 5). Why
+Godot rather than Unity:
 
-- **Plain JavaScript modules, no build step.** `npm start` serves `www/`.
-- **Screens in HTML and CSS, scenes drawn in SVG.** The screen designs are
-  already HTML and SVG, so they turn into code almost directly.
-- **Mini-games on canvas,** using a copy of De9De9 Play's `engine.js` that
-  reports the score to the job instead of the wallet.
-- **Capacitor** for the Android and iOS apps. Android first: most phones in
-  Algeria run Android.
-- **Saved on the phone** (localStorage) first. Accounts and a server come
-  before real rewards are paid out.
-- **Tests with Node's built-in runner** for all game rules, plus one
-  Playwright smoke test that opens every screen.
+- It is made for 2D, which is what this game is: a cozy management game
+  with menus and small arcade mini-games.
+- It is free and open source (MIT): no account, no revenue limit, no forced
+  splash screen.
+- Apps are smaller, which matters on the mid-range Android phones most
+  players in Algeria use.
+- GDScript is close to the JavaScript the first version was written in, so
+  the rules carried over almost line by line, with their tests.
+- It builds and tests in a cloud container, so every step can be checked
+  (Unity needs a licensed account and gigabytes of downloads).
 
-Game rules live in plain modules with no DOM, so they can be tested without a
-browser. Screens only read the state and call those rules.
+How it is built:
+
+- **Godot 4.7, GL Compatibility renderer** (runs on older phones), portrait,
+  designed at 390×844 and scaled to every screen.
+- **Rules in plain GDScript classes** (`godot/scripts/rules/`), no nodes,
+  tested headless (`godot/tests/run.sh`). The save is the same JSON shape
+  as the web version, in `user://save.json`.
+- **Screens built in code** from a small UI kit (`godot/scripts/ui/ui.gd`)
+  with De9De9's colours and fonts.
+- **Art shared with the web version:** `godot/tools/export_art.mjs` exports
+  the drawings in `www/js/art/` as SVG layers, and `export_text.mjs` the
+  words in `www/js/text.js`. Change a drawing or a word there and run the
+  tool again.
+- **Mini-games** (`godot/scripts/minigames/`) are ports of De9De9 Play's
+  games on a shared `MiniGame` base, drawn in code.
+- **Sounds** are made in code (`sfx.gd`), like the web version: no sound files.
+- **Android first,** exported as an APK (and an AAB for the Play Store);
+  iOS later from a Mac.
+
+The first version, plain JavaScript in `www/` with Capacitor, stays in the
+repo as the prototype and the source of the art and words. New features go
+into the Godot game.
+
+Game rules never touch the screen, so they can be tested without one.
+Screens only read the save and call the rules.
 
 ### Folders
 

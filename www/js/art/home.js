@@ -326,3 +326,7 @@ export function homeScene({ level = 1, rooms = [], outfit = null } = {}) {
   <g class="fx"></g>
 </svg>`;
 }
+
+// The scene's parts, for tools that draw the home in layers (the Godot
+// game's art is exported from here, so both games share one drawing).
+export const PARTS = { HOMES, walls, sunAndMoon, radio, stereo, bed, bigBed, tub, bathtub, pantry, fridge, BADGES };

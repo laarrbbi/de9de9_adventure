@@ -2,12 +2,18 @@
 
 A phone game starring Nemla, the De9De9 mascot. Raise your Nemla, work jobs,
 grow a garden, make bug friends, and get richer: more land, a bigger house,
-nicer cars, better equipment. One web codebase (`www/`), wrapped for Android
-and iOS with Capacitor, like De9De9 Play.
+nicer cars, better equipment.
+
+**The game is native, built with Godot 4.7: see [godot/README.md](godot/README.md).**
+It runs on Android (APK) and will run on iOS. The web version in `www/` came
+first; it stays as the prototype and the source of the drawings and words,
+which tools copy into the Godot game.
 
 The plan, with the milestones, is in [docs/PLAN.md](docs/PLAN.md).
 
-## Run it
+## The web prototype
+
+Plain JavaScript, wrapped with Capacitor like De9De9 Play.
 
 ```bash
 npm start          # the game, at http://localhost:5174
@@ -45,6 +51,9 @@ npm run android       # syncs www/ and opens Android Studio
 ```
 
 ## Done so far
+
+Steps M0 to M4 are in both versions.
+
 
 - **M0 Setup:** project, assets, save system, tests, smoke test.
 - **M1 Nemla at home:** the little hole, four needs that drop in real time

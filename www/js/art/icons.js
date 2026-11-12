@@ -1,5 +1,5 @@
 // Line icons on a 24×24 grid. They take the colour of the text around them.
-const PATHS = {
+export const PATHS = {
   hunger: '<path d="M12 7C9 5 5 6 5 11c0 5 3 9 5 9 1 0 1-.5 2-.5s1 .5 2 .5c2 0 5-4 5-9 0-5-4-6-7-4z"/><path d="M12 7c0-2 1-4 3-4"/>',
   energy: '<path d="M13 2L5 13h6l-1 9 9-12h-6z"/>',
   clean: '<path d="M12 3s-7 8-7 12a7 7 0 0 0 14 0c0-4-7-12-7-12z"/>',
