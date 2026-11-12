@@ -7,31 +7,71 @@ import {
 import { average } from './needs.js';
 import { earn } from './wallet.js';
 import { gainXp } from './care.js';
+import { owns, perks } from './perks.js';
 import { dayKey, yesterdayKey } from './clock.js';
 
 export const jobById = (id) => JOBS.find((job) => job.id === id);
 
-// Items from the Shop arrive in a later update, so a job that needs one
-// stays locked for now.
-export const canTake = (state, job) => !job.needs && state.nemla.level >= job.level;
+// A job needs Nemla's level, and the Shop item it names, if any.
+export const canTake = (state, job) => state.nemla.level >= job.level && (!job.needs || owns(state, job.needs));
+
+export const jobsPerDay = (state) => JOBS_PER_DAY + perks(state).jobs;
 
 const pick = (list, random) => list[Math.floor(random() * list.length)];
+
+const posted = (id, client) => ({ job: id, client, done: false, paid: 0 });
+
+// The jobs Nemla takes, not the ones the workshop did.
+const ownJobs = (board) => board.filter((entry) => !entry.by);
+
+// Adds random jobs until the board has a full day's worth. Returns how many.
+export function fillBoard(state, random = Math.random) {
+  const { board } = state.work;
+  let added = 0;
+  while (ownJobs(board).length < jobsPerDay(state)) {
+    const open = JOBS.filter((job) => canTake(state, job)
+      && (!job.perDay || board.filter((e) => e.job === job.id).length < job.perDay));
+    board.push(posted(pick(open, random).id, pick(CLIENTS, random)));
+    added += 1;
+  }
+  return added;
+}
 
 // A new day brings a new board. Returns whether it changed.
 export function refreshBoard(state, now, random = Math.random) {
   const work = state.work;
   const today = dayKey(now);
   if (work.day === today) return false;
-  const open = JOBS.filter((job) => canTake(state, job));
   work.day = today;
   work.earnedToday = 0;
-  work.board = Array.from({ length: JOBS_PER_DAY }, () => ({
-    job: pick(open, random).id,
-    client: pick(CLIENTS, random),
-    done: false,
-    paid: 0,
-  }));
+  work.board = [];
+  fillBoard(state, random);
   return true;
+}
+
+// Puts one extra job on today's board, for a Shop item that just unlocked it.
+export function postJob(state, id, random = Math.random) {
+  state.work.board.push(posted(id, pick(CLIENTS, random)));
+}
+
+// The workshop's helpers do their jobs once a day, paid the base price, with
+// no XP and no tiredness. Returns { count, coins } or null.
+export function runWorkshop(state, now, random = Math.random) {
+  const { helpers } = perks(state);
+  const work = state.work;
+  const today = dayKey(now);
+  if (!helpers || work.helpedDay === today || work.day !== today) return null;
+  work.helpedDay = today;
+  const open = JOBS.filter((job) => canTake(state, job));
+  let coins = 0;
+  for (let i = 0; i < helpers; i++) {
+    const job = pick(open, random);
+    work.board.push({ ...posted(job.id, pick(CLIENTS, random)), done: true, paid: job.pay, by: 'workshop' });
+    coins += job.pay;
+  }
+  earn(state, coins);
+  work.earnedToday += coins;
+  return { count: helpers, coins };
 }
 
 // Days in a row with at least one job, counting today or yesterday.
@@ -47,11 +87,11 @@ export function streakBonus(state, now) {
 export const isTired = (state) => average(state.nemla.needs) < NEEDS_TIRED;
 
 // Coins for a run, rounded to 5: the score sets the share of the base pay,
-// then the streak bonus and tiredness apply.
+// then the streak bonus, pay perks from the Shop and tiredness apply.
 export function payFor(state, job, score, now) {
   const skill = PAY_MIN + Math.min(1, Math.max(0, score / job.great)) * (PAY_MAX - PAY_MIN);
   const tired = isTired(state) ? TIRED_PAY : 1;
-  const coins = job.pay * skill * (1 + streakBonus(state, now)) * tired;
+  const coins = job.pay * skill * (1 + streakBonus(state, now) + perks(state).pay) * tired;
   return Math.max(5, Math.round(coins / 5) * 5);
 }
 

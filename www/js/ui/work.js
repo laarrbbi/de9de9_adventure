@@ -12,11 +12,13 @@ const serviceIcon = (service) => `<img src="assets/services/${service}.png" alt=
 function jobCard(entry, slot) {
   const job = jobById(entry.job);
   const name = t(`job.${job.id}`);
-  const details = t('work.for', {
-    client: t(`client.${entry.client}`),
-    service: t(`service.${job.service}`),
-    game: t(`game.${job.game}`),
-  });
+  const details = entry.by
+    ? t('work.byWorkshop', { client: t(`client.${entry.client}`) })
+    : t('work.for', {
+      client: t(`client.${entry.client}`),
+      service: t(`service.${job.service}`),
+      game: t(`game.${job.game}`),
+    });
   const action = entry.done
     ? `<span class="job-paid">${icon('check', 16)}+${num(entry.paid)}</span>`
     : `<button class="job-go" data-slot="${slot}" aria-label="${t('work.start', { job: name, coins: num(job.pay) })}">${coin(16)}+${num(job.pay)}</button>`;

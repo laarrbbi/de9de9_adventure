@@ -1,9 +1,13 @@
-// The home screen: the scene, Nemla's mood and the four needs. It only
-// shows the save; every change goes through `onAct(name)` to main.js.
+// The home screen: the scene, Nemla's mood, the four needs and the next
+// home to save for. It only shows the save; every change goes through
+// `onAct(name)` to main.js ('journey' opens the homes in the Shop).
 import { homeScene, SPOTS } from '../art/home.js';
 import { icon, coin } from '../art/icons.js';
+import { itemArt } from '../art/items.js';
 import { NEEDS, worstNeed, mood } from '../needs.js';
-import { MEAL, NEED_LOW, CARE_XP, xpToNext, levelUpCoins } from '../economy.js';
+import { MEAL, NEED_LOW } from '../economy.js';
+import { homeOf } from '../perks.js';
+import { nextHome } from '../shop.js';
 import { dayNumber, clockTime, isNight } from '../clock.js';
 import { t, saying, num } from '../text.js';
 
@@ -33,29 +37,30 @@ export function mountHome(root, { onAct }) {
       <span class="mood" data-ref="mood"></span>
     </div>
     <div class="scene">
-      ${homeScene()}
+      <div data-ref="art"></div>
       <p class="speech" data-ref="speech" hidden></p>
     </div>
     <div class="needs">${NEEDS.map(needButton).join('')}</div>
-    <div class="goal">
-      <span class="goal-icon">${coin(26)}</span>
+    <button class="goal" data-ref="goal">
+      <span class="goal-icon" data-ref="goalIcon"></span>
       <span class="goal-body">
         <span class="goal-top"><b data-ref="goalTitle"></b><span class="goal-reward" data-ref="goalReward"></span></span>
         <span class="bar"><i data-ref="goalBar"></i></span>
         <span class="goal-note" data-ref="goalNote"></span>
       </span>
-    </div>
+    </button>
   </section>`;
 
   const one = (sel) => root.querySelector(sel);
-  const svg = one('.home-svg');
-  const fx = one('.fx');
-  const nemla = one('.nemla');
-  const thought = one('.thought');
+  const art = one('[data-ref="art"]');
+  const titleEl = one('h1');
+  let svg, fx, nemla, thought, drawnScene = '', drawnGoal = '';
   const timeEl = one('[data-ref="time"]');
   const moodEl = one('[data-ref="mood"]');
   const speech = one('[data-ref="speech"]');
   const goal = {
+    button: one('[data-ref="goal"]'),
+    icon: one('[data-ref="goalIcon"]'),
     title: one('[data-ref="goalTitle"]'),
     reward: one('[data-ref="goalReward"]'),
     bar: one('[data-ref="goalBar"]'),
@@ -65,11 +70,11 @@ export function mountHome(root, { onAct }) {
   let current = null;
   let speechTimer = null;
 
-  svg.addEventListener('click', (e) => {
+  art.addEventListener('click', (e) => {
     const target = e.target.closest('.obj');
     if (target) onAct(target.dataset.act);
   });
-  svg.addEventListener('keydown', (e) => {
+  art.addEventListener('keydown', (e) => {
     if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('obj')) {
       e.preventDefault();
       onAct(e.target.dataset.act);
@@ -79,9 +84,25 @@ export function mountHome(root, { onAct }) {
     const button = e.target.closest('.need');
     if (button) onAct(button.dataset.act);
   });
+  goal.button.addEventListener('click', () => onAct('journey'));
+
+  // The scene is drawn again only when the home, its rooms or the outfit change.
+  function drawScene(state) {
+    const look = { level: state.home.level, rooms: state.home.rooms, outfit: state.nemla.outfit };
+    const key = JSON.stringify(look);
+    if (key === drawnScene) return;
+    drawnScene = key;
+    art.innerHTML = homeScene(look);
+    svg = art.querySelector('.home-svg');
+    fx = art.querySelector('.fx');
+    nemla = art.querySelector('.nemla');
+    thought = art.querySelector('.thought');
+    titleEl.textContent = t(`home.title.${homeOf(state).id}`);
+  }
 
   function update(state, now) {
     current = state;
+    drawScene(state);
     const { needs, sleeping } = state.nemla;
     const worst = sleeping ? null : worstNeed(needs);
     const feeling = sleeping ? 'sleeping' : mood(needs);
@@ -111,19 +132,34 @@ export function mountHome(root, { onAct }) {
       button.setAttribute('aria-label', t('need.label', { need: t(`need.${need}`), value, action }));
     }
 
-    const { level, xp } = state.nemla;
-    const next = level + 1;
-    goal.title.textContent = t('goal.title', { level: next });
-    goal.reward.textContent = t('goal.reward', { coins: num(levelUpCoins(next)) });
-    goal.bar.style.width = `${Math.round((xp / xpToNext(level)) * 100)}%`;
-    goal.note.textContent = t('goal.note', { xp, need: xpToNext(level), each: CARE_XP });
+    updateGoal(state);
+  }
+
+  // The next home: how far the coins are from its price.
+  function updateGoal(state) {
+    const next = nextHome(state);
+    const ready = next && state.coins >= next.price;
+    const key = `${next?.id}|${ready}`;
+    if (key !== drawnGoal) {
+      drawnGoal = key;
+      goal.icon.innerHTML = itemArt(next?.id ?? homeOf(state).id, 40);
+      goal.button.classList.toggle('ready', !!ready);
+      goal.title.textContent = next ? t(ready ? 'goal.ready' : 'goal.title', { home: t(`item.${next.id}`) }) : t('goal.top');
+      goal.reward.innerHTML = next ? `${coin(15)}${num(next.price)}` : '';
+    }
+    const share = next ? Math.min(1, state.coins / next.price) : 1;
+    goal.bar.style.width = `${Math.round(share * 100)}%`;
+    goal.note.textContent = !next ? t('goal.topNote')
+      : ready ? t('goal.readyNote')
+      : t('goal.note', { coins: num(state.coins), price: num(next.price), left: num(next.price - state.coins) });
+    goal.button.setAttribute('aria-label', `${goal.title.textContent}. ${goal.note.textContent}`);
   }
 
   // Shows what an action did, on top of the new state that update() draws.
-  function react(act) {
+  function react(act, gained = {}) {
     if (act === 'eat') {
       bite();
-      floatText(`+${MEAL.hunger}`, SPOTS.head);
+      floatText(`+${gained.hunger ?? MEAL.hunger}`, SPOTS.head);
       bounce();
     } else if (act === 'wash') {
       bubbles();

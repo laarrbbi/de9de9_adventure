@@ -28,12 +28,14 @@ export const levelUpCoins = (level) => 50 * level;
 
 // Jobs. Each is a mini-game from De9De9 Play. A run pays from PAY_MIN to
 // PAY_MAX times `pay`, depending on the score against `great`. A job with
-// `needs` waits for that item from the Shop.
+// `needs` waits for that item from the Shop; `perDay` caps how many of it a
+// day's board can have.
 export const JOBS = [
   { id: 'fixPipe', service: 'travaux', game: 'fix', pay: 150, great: 30, level: 1 },
   { id: 'deliver', service: 'auto', game: 'run', pay: 120, great: 30, level: 1 },
   { id: 'wedding', service: 'evenement', game: 'tiles', pay: 300, great: 80, level: 2 },
-  { id: 'buildRoom', service: 'travaux', game: 'stack', pay: 1200, great: 20, level: 1, needs: 'toolbox' },
+  { id: 'express', service: 'auto', game: 'run', pay: 250, great: 30, level: 1, needs: 'scooter' },
+  { id: 'buildRoom', service: 'travaux', game: 'stack', pay: 1200, great: 20, level: 1, needs: 'toolbox', perDay: 1 },
 ];
 export const PAY_MIN = 0.5;
 export const PAY_MAX = 1.5;
@@ -72,6 +74,63 @@ export const plotPrice = (owned) => 500 + 100 * Math.max(0, owned - START_PLOTS)
 
 // The market buys this many crops a day, whatever the crop.
 export const MARKET_PER_DAY = 30;
+
+// The Shop. Each item may carry perks, added up in perks.js:
+//   jobs: more jobs a day       pay: share added to job pay
+//   market: market size ×       grow: grow time ×
+//   sells: share added to crop prices
+//   drop: need drops ×, by need  sleep: how fast sleep refills energy ×
+//   meal: hunger a meal fills   washFun: fun a bath adds   playFun: fun the radio adds
+//   helpers: jobs a day done for you
+// Cars, equipment and rooms work as long as they are owned; clothes only
+// while Nemla wears them. Jobs that need an item name it in JOBS `needs`.
+
+// Homes, in the order Nemla moves through them. A home's place in this list
+// is `home.level` - 1. Each home above the first adds JOBS_PER_HOME jobs a
+// day; plots are in PLOTS_BY_HOME.
+export const HOMES = [
+  { id: 'hole', price: 0 },
+  { id: 'anthill', price: 2000 },
+  { id: 'house', price: 10000 },
+  { id: 'villa', price: 50000 },
+  { id: 'palace', price: 250000 },
+];
+export const JOBS_PER_HOME = 1;
+
+// Rooms to dig (or build) at home. `home` is the home level they need.
+export const ROOMS = [
+  { id: 'kitchen', price: 800, home: 2, meal: 40 },
+  { id: 'bathroom', price: 600, home: 2, washFun: 15 },
+  { id: 'bedroom', price: 1500, home: 3, sleep: 2 },
+  { id: 'musicRoom', price: 1200, home: 3, playFun: 35 },
+];
+
+export const CARS = [
+  { id: 'leafCart', price: 0 },
+  { id: 'scooter', price: 3000 },
+  { id: 'littleCar', price: 15000, jobs: 2 },
+  { id: 'pickup', price: 40000, market: 3 },
+  { id: 'sportsCar', price: 120000, pay: 0.1 },
+];
+
+export const EQUIPMENT = [
+  { id: 'wateringCan', price: 0 },
+  { id: 'sprinkler', price: 1500, grow: 0.75 },
+  { id: 'toolbox', price: 4000 },
+  { id: 'tractor', price: 25000 },
+  { id: 'workshop', price: 80000, helpers: 2 },
+];
+
+// One outfit at a time.
+export const CLOTHES = [
+  { id: 'redCap', price: 500, drop: { fun: 0.75 } },
+  { id: 'strawHat', price: 1200, sells: 0.1 },
+  { id: 'overalls', price: 2500, pay: 0.05 },
+  { id: 'sunglasses', price: 6000, drop: { hunger: 0.85, energy: 0.85, clean: 0.85, fun: 0.85 } },
+];
+
+// The first 5 minutes: each step of the guide pays this much.
+export const GUIDE_STEP_COINS = 20;
 
 // The longest absence the game catches up on, so a phone whose clock jumps
 // ahead can't fast-forward months.

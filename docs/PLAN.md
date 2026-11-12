@@ -45,8 +45,9 @@ Every other rule supports that one:
 | Map | New places to unlock with coins and level. Each has new land, crops, bugs and jobs | Stardew |
 
 Plus two overviews, **Nemla's journey** (5 homes, from a little hole to a
-palace) and **Rewards** (daily gift, level-up chest, trophies, weekly contest,
-wealth titles).
+palace; it is the Homes section of the Shop, and the card at the bottom of
+Home shows the next home to save for) and **Rewards** (daily gift, level-up
+chest, trophies, weekly contest, wealth titles).
 
 ### The money loop
 
@@ -61,6 +62,10 @@ Work a job → earn coins → buy equipment → take bigger jobs → buy the dre
 4. Plant wheat in the second plot, and save up for a third plot (500).
 5. A snail visits the garden. Give it a gift and it becomes your first friend.
 6. A goal appears: "Save 2,000 coins to move into the Anthill."
+
+A guide under the top bar leads these steps: it says what to do, has a "Go"
+button to the right tab, and rings the thing to tap. Each step pays 20
+coins. Step 5 joins the guide with the bug friends (M5).
 
 ### Bug friends and De9De9 services
 
@@ -147,7 +152,7 @@ number so old saves can be upgraded:
 {
   version: 1,
   lastSeen: 1761900000000,
-  nemla: { level: 4, xp: 120, needs: { hunger: 26, energy: 80, clean: 64, fun: 55 }, outfit: 'basic' },
+  nemla: { level: 4, xp: 120, needs: { hunger: 26, energy: 80, clean: 64, fun: 55 }, sleeping: false, outfit: 'redCap' },
   coins: 1250, totalEarned: 6400,
   points: { balance: 640, day: '2026-10-31', today: 3 },
   home: { level: 2, rooms: ['bedroom', 'kitchen'] },
@@ -158,11 +163,12 @@ number so old saves can be upgraded:
     planted: { mint: 3, wheat: 5, tomato: 0 },
     market: { day: '2026-10-31', sold: 12 },
   },
-  owned: { cars: ['leafCart', 'scooter'], car: 'scooter', equipment: ['wateringCan'], clothes: [] },
+  owned: { cars: ['scooter'], equipment: ['sprinkler'], clothes: ['redCap'] },  // bought ones; the leaf cart and watering can come free
+  guide: { step: 6 },                   // the first-5-minutes guide; 6 = finished
   places: ['home'],
   friends: { beetle: { level: 3, hearts: 3, calledOn: '2026-10-31' } },
   visitors: [{ bug: 'butterfly', until: 0 }],
-  jobs: { day: '2026-10-31', board: [], done: 5, streak: 4 },
+  work: { day: '2026-10-31', board: [], done: 5, streak: 4, lastWorked: '2026-10-31', helpedDay: '2026-10-31' },
   events: [{ kind: 'leak', room: 'kitchen', since: 0 }],
   rewards: { giftStreak: 3, lastGiftDay: '2026-10-30', trophies: [], title: 'worker' }
 }
@@ -195,7 +201,7 @@ the save survives closing the app.
 
 **Phase 2: getting richer**
 
-- [ ] **M4. Shop and homes.** The 5 homes (the scene changes with each),
+- [x] **M4. Shop and homes.** The 5 homes (the scene changes with each),
   digging rooms, cars, equipment with real perks, clothes, the Journey
   screen, and the first-5-minutes tutorial.
   *Try it:* save up, move into the Anthill, buy a scooter, unlock deliveries.
@@ -276,6 +282,25 @@ never goes bad; it waits in its plot.
 | **Cars** | Leaf cart | Scooter 3,000 | Little car 15,000 | Pickup truck 40,000 | Sports car 120,000 |
 | **Equipment** | Watering can | Sprinkler 1,500 | Toolbox 4,000 | Tractor 25,000 | Workshop 80,000 |
 
+Homes are moved into in order. Cars, equipment, rooms and clothes can be
+bought in any order. Every buy takes two taps (the price, then "Tap to
+buy"), so a big price is never paid by accident, and whatever it unlocks
+starts the same day: a new job is put on today's board.
+
+| Rooms (dug at home) | Price | Needs | What it does |
+|---|---|---|---|
+| Kitchen | 800 | Anthill | Meals fill 40 hunger instead of 25 |
+| Bathroom | 600 | Anthill | A bath also adds 15 fun |
+| Bedroom | 1,500 | Big house | Nemla sleeps twice as fast |
+| Music room | 1,200 | Big house | Music adds 35 fun instead of 20 |
+
+| Clothes (one at a time) | Price | What it does while worn |
+|---|---|---|
+| Red cap | 500 | Fun drops 25% slower |
+| Straw hat | 1,200 | +10% at the market |
+| Overalls | 2,500 | +5% pay on every job |
+| Sunglasses | 6,000 | All needs drop 15% slower |
+
 | Perk | What it does |
 |---|---|
 | Scooter | Unlocks express deliveries |
@@ -285,7 +310,7 @@ never goes bad; it waits in its plot.
 | Sprinkler | Crops grow 25% faster |
 | Toolbox | Unlocks building jobs |
 | Tractor | Harvest and replant every plot in one tap |
-| Workshop | Bug friends do 2 jobs a day for you |
+| Workshop | 2 extra jobs a day, done for you at the base pay (bug friends will be the helpers in M5) |
 | Each new home | More rooms, more plots, +1 job a day |
 
 - **Plots:** a new game has 2. The third costs 500, and each one after it

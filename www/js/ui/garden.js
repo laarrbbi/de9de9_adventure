@@ -1,13 +1,16 @@
 // The Garden screen: the seeds to choose from, the plots, and the market.
 // It only shows the save; every change goes through `onAct(name, arg)` to
 // main.js: 'seed' (crop id), 'plot' (plot index), 'buyPlot', 'harvestAll',
-// 'sell' (crop id) and 'sellAll'.
+// 'tractor', 'sell' (crop id) and 'sellAll'.
 import { CROPS } from '../economy.js';
 import {
   cropById, canGrow, growTime, isReady, progress, readyCount, roomForPlots, nextPlotPrice, marketLeft, barnTotal,
+  priceOf, hasTractor,
 } from '../garden.js';
+import { homeOf } from '../perks.js';
 import { plotArt, cropIcon, stageFor } from '../art/crops.js';
 import { coin, icon } from '../art/icons.js';
+import { itemArt } from '../art/items.js';
 import { msToMidnight } from '../clock.js';
 import { t, num, duration, countdown } from '../text.js';
 
@@ -50,8 +53,16 @@ export function mountGarden(root, { onAct }) {
   function update(state, now) {
     const { garden } = state;
     const ready = readyCount(state, now);
-    ref.harvestAll.hidden = ready < 2;
-    ref.harvestAll.innerHTML = `${icon('garden', 18)}${t('garden.harvestAll', { n: ready })}`;
+    // With the tractor, one button harvests and replants everything.
+    const tractor = hasTractor(state);
+    const empty = garden.plots.some((plot) => !plot.crop);
+    ref.harvestAll.hidden = tractor ? !ready && !empty : ready < 2;
+    ref.harvestAll.dataset.act = tractor ? 'tractor' : 'harvestAll';
+    const label = tractor ? `${itemArt('tractor', 24)}${t('garden.tractor')}` : `${icon('garden', 18)}${t('garden.harvestAll', { n: ready })}`;
+    if (ref.harvestAll.dataset.label !== label) {
+      ref.harvestAll.innerHTML = label;
+      ref.harvestAll.dataset.label = label;
+    }
 
     drawSeeds(state);
     drawPlots(state, now);
@@ -73,12 +84,12 @@ export function mountGarden(root, { onAct }) {
 
     const full = garden.plots.length >= roomForPlots(state);
     ref.fieldNote.hidden = !full;
-    if (full) ref.fieldNote.textContent = t('garden.noRoom', { n: roomForPlots(state) });
+    if (full) ref.fieldNote.textContent = t('garden.noRoom', { home: t(`item.${homeOf(state).id}`), n: roomForPlots(state) });
   }
 
   function drawSeeds(state) {
     const { seed, planted } = state.garden;
-    const key = `${seed}|${state.nemla.level}|${Object.values(planted).join()}`;
+    const key = `${seed}|${state.nemla.level}|${Object.values(planted).join()}|${CROPS.map((c) => growTime(state, c) + priceOf(state, c)).join()}`;
     if (key === drawn.seeds) return;
     drawn.seeds = key;
     ref.seeds.innerHTML = CROPS.map((crop) => {
@@ -94,12 +105,12 @@ export function mountGarden(root, { onAct }) {
       const on = crop.id === seed;
       return `
         <button class="seed${on ? ' on' : ''}" role="radio" aria-checked="${on}" data-act="seed" data-arg="${crop.id}"
-          aria-label="${t('garden.seedLabel', { crop: name, coins: crop.seed, grow, sell: crop.sell })}">
+          aria-label="${t('garden.seedLabel', { crop: name, coins: crop.seed, grow, sell: priceOf(state, crop) })}">
           <span class="seed-icon">${cropIcon(crop.id, 30)}</span>
           <span class="seed-text">
             <b>${name}</b>
             <small>${coin(11)}${crop.seed} · ${grow}</small>
-            <small class="seed-sell">${t('garden.sells', { coins: crop.sell })}</small>
+            <small class="seed-sell">${t('garden.sells', { coins: priceOf(state, crop) })}</small>
           </span>
         </button>`;
     }).join('');
@@ -151,25 +162,26 @@ export function mountGarden(root, { onAct }) {
 
   function drawBarn(state, left) {
     const { barn } = state.garden;
-    const key = `${left > 0}|${CROPS.map((crop) => barn[crop.id]).join()}`;
+    const key = `${left > 0}|${CROPS.map((crop) => `${barn[crop.id]}:${priceOf(state, crop)}`).join()}`;
     if (key === drawn.barn) return;
     drawn.barn = key;
     const have = CROPS.filter((crop) => barn[crop.id] > 0);
     const rows = have.map((crop) => {
       const count = barn[crop.id];
+      const price = priceOf(state, crop);
       const name = cropName(crop.id);
       return `
       <div class="barn-row" data-crop="${crop.id}">
         <span class="barn-icon">${cropIcon(crop.id, 34)}</span>
-        <span class="barn-text"><b>${t('market.count', { crop: name, n: count })}</b><small>${t('market.price', { coins: crop.sell })}</small></span>
+        <span class="barn-text"><b>${t('market.count', { crop: name, n: count })}</b><small>${t('market.price', { coins: price })}</small></span>
         <button class="sell" data-act="sell" data-arg="${crop.id}" ${left ? '' : 'disabled'}
-          aria-label="${t('market.sellLabel', { n: count, crop: name, coins: num(count * crop.sell) })}">
-          ${t('market.sell')} ${coin(15)}+${num(count * crop.sell)}
+          aria-label="${t('market.sellLabel', { n: count, crop: name, coins: num(count * price) })}">
+          ${t('market.sell')} ${coin(15)}+${num(count * price)}
         </button>
       </div>`;
     });
     if (have.length > 1) {
-      const total = have.reduce((sum, crop) => sum + barn[crop.id] * crop.sell, 0);
+      const total = have.reduce((sum, crop) => sum + barn[crop.id] * priceOf(state, crop), 0);
       rows.push(`
       <button class="sell-all" data-act="sellAll" ${left ? '' : 'disabled'}>
         ${t('market.sellAll')} ${coin(16)}+${num(total)}

@@ -2,5 +2,6 @@
 import fix from './fix.js';
 import run from './run.js';
 import tiles from './tiles.js';
+import stack from './stack.js';
 
-export const GAMES = { fix, run, tiles };
+export const GAMES = { fix, run, tiles, stack };

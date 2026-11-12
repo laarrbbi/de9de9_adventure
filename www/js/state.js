@@ -11,12 +11,13 @@ export function newGame(now) {
     version: VERSION,
     createdAt: now,
     lastSeen: now,
-    nemla: { level: 1, xp: 0, needs: { ...START.needs }, sleeping: false },
+    nemla: { level: 1, xp: 0, needs: { ...START.needs }, sleeping: false, outfit: null },
     coins: START.coins,
     totalEarned: 0,
     points: { balance: 0, day: '', today: 0 },
-    home: { level: 1 },
-    work: { day: '', board: [], earnedToday: 0, done: 0, streak: 0, lastWorked: '' },
+    home: { level: 1, rooms: [] },
+    owned: { cars: [], equipment: [], clothes: [] },
+    work: { day: '', board: [], earnedToday: 0, done: 0, streak: 0, lastWorked: '', helpedDay: '' },
     garden: {
       plots: Array.from({ length: START_PLOTS }, () => ({ crop: null, plantedAt: 0, readyAt: 0 })),
       seed: CROPS[0].id,
@@ -25,6 +26,7 @@ export function newGame(now) {
       market: { day: '', sold: 0 },
     },
     stats: { meals: 0, baths: 0, plays: 0, naps: 0, harvests: 0, sold: 0 },
+    guide: { step: 0 },
   };
 }
 

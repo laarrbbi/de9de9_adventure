@@ -22,9 +22,38 @@ const EYELIDS = `
 const eyelids = (x, y, width, cls) =>
   `<g class="${cls}" transform="translate(${x} ${y}) scale(${width / 350})">${EYELIDS}</g>`;
 
-// Nemla standing, centred on `x` with the feet on `feet`. The outer group is
-// for one-off moves (a bounce when tapped), the inner one for the idle bob.
-export function standing({ x, feet, width }) {
+// Outfits from the Shop. Hats and glasses are drawn on the head image's own
+// 300×343 grid (the dome starts at y 99, the eyes are at 89 and 206, y 214);
+// overalls on the body's 46×38 grid.
+const INK = '#2f3f47';
+const ON_HEAD = {
+  redCap: `
+    <path d="M62 146Q60 84 150 80Q240 84 238 146Z" fill="#e7464e" stroke="${INK}" stroke-width="7"/>
+    <path d="M50 146Q150 186 250 146Q150 160 50 146Z" fill="#b42f38" stroke="${INK}" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M112 118H188" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="150" cy="82" r="9" fill="#fff" stroke="${INK}" stroke-width="5"/>`,
+  strawHat: `
+    <ellipse cx="150" cy="134" rx="148" ry="26" fill="#f0c96a" stroke="${INK}" stroke-width="7"/>
+    <path d="M84 134Q82 62 150 60Q218 62 216 134Z" fill="#f0c96a" stroke="${INK}" stroke-width="7"/>
+    <path d="M86 116Q150 132 214 116" stroke="#e7464e" stroke-width="16"/>`,
+  sunglasses: `
+    <path d="M30 196H270" stroke="${INK}" stroke-width="9" stroke-linecap="round"/>
+    <rect x="44" y="180" width="92" height="66" rx="28" fill="${INK}"/>
+    <rect x="162" y="180" width="92" height="66" rx="28" fill="${INK}"/>
+    <path d="M62 198l28-4M180 198l28-4" stroke="#8b9da2" stroke-width="8" stroke-linecap="round"/>`,
+};
+const ON_BODY = {
+  overalls: `
+    <path d="M8 18H38Q38 31 23 31Q8 31 8 18Z" fill="#3d6fb6" stroke="${INK}" stroke-width="2"/>
+    <rect x="16" y="11" width="14" height="9" rx="1.5" fill="#3d6fb6" stroke="${INK}" stroke-width="1.6"/>
+    <path d="M16 12L11 5M30 12l5-7" stroke="#3d6fb6" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="18.5" cy="13.5" r="1.2" fill="#ffc93c"/><circle cx="27.5" cy="13.5" r="1.2" fill="#ffc93c"/>`,
+};
+
+// Nemla standing, centred on `x` with the feet on `feet`, wearing `outfit`
+// if any. The outer group is for one-off moves (a bounce when tapped), the
+// inner one for the idle bob.
+export function standing({ x, feet, width, outfit = null }) {
   const s = width / 56;
   const bodyY = feet - 38 * s;
   const headH = width * HEAD_RATIO;
@@ -33,9 +62,10 @@ export function standing({ x, feet, width }) {
   return `
   <g class="nemla">
     <g class="nemla-bob">
-      <g transform="translate(${x - 23 * s} ${bodyY}) scale(${s})">${BODY}</g>
+      <g transform="translate(${x - 23 * s} ${bodyY}) scale(${s})">${BODY}${ON_BODY[outfit] ?? ''}</g>
       <image href="${HEAD}" x="${headX}" y="${headY}" width="${width}" height="${headH}"/>
       ${eyelids(headX, headY, width, 'eyelids')}
+      ${ON_HEAD[outfit] ? `<g transform="translate(${headX} ${headY}) scale(${width / 300})">${ON_HEAD[outfit]}</g>` : ''}
     </g>
   </g>`;
 }

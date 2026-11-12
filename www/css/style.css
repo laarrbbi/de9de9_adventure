@@ -239,17 +239,26 @@ h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 25px; 
 .bar i { display: block; height: 100%; border-radius: 4px; background: var(--teal); transition: width 0.4s; }
 .need.low .bar i { background: var(--red); }
 
-/* Next level goal */
+/* The next home to save for */
 .goal {
+  width: 100%;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
+  border: 0;
   border-radius: 16px;
   background: var(--gold-soft);
+  text-align: left;
+  cursor: pointer;
 }
-.goal-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--card); display: grid; place-items: center; }
+.goal:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.goal:active { transform: scale(0.98); }
+.goal.ready { background: var(--gold); box-shadow: 0 0 0 3px #fff3cf inset; }
+.goal.ready .goal-note, .goal.ready .goal-reward { color: var(--ink); }
+.goal.ready .bar { background: #ffe9a8; }
+.goal-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--card); display: grid; place-items: center; }
 .goal-body { min-width: 0; }
 .goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 14px; }
 .goal-top b { font-weight: 800; }
@@ -518,6 +527,141 @@ h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 19px; 
   animation: pop-up 1.2s ease-out forwards;
 }
 
+/* Shop */
+.shop { display: flex; flex-direction: column; gap: 12px; }
+.shop-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: #e4eeec;
+}
+.shop-tab {
+  min-height: 40px;
+  padding: 0 2px;
+  border: 0;
+  border-radius: 11px;
+  background: none;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  cursor: pointer;
+}
+.shop-tab[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
+.shop-tab:focus-visible { outline: 3px solid var(--teal); outline-offset: -3px; }
+.shop-intro { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+.shop-list { display: flex; flex-direction: column; gap: 8px; }
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 10px;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.item-pic { flex: none; width: 60px; height: 60px; border-radius: 14px; display: grid; place-items: center; background: var(--page); }
+.item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.item-text b { font-size: 15px; font-weight: 800; }
+.item-text small { font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.3; }
+.item-text .item-note { font-weight: 800; color: var(--gold-ink); }
+.item.here { background: var(--teal-soft); box-shadow: 0 0 0 2px var(--teal) inset; }
+.item.here .item-pic { background: var(--card); }
+.item.locked { box-shadow: none; background: #e9efee; }
+.item.locked .item-pic svg { opacity: 0.55; }
+.item.locked .item-note { color: var(--muted); }
+.item-chip {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e9efee;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.item-chip.on { background: var(--card); color: var(--teal-ink); }
+.item-chip.muted { background: none; font-family: var(--display); font-size: 14px; font-weight: 600; }
+.buy, .wear {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 92px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--gold);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.buy.short { background: #e9efee; color: var(--muted); }
+.buy.armed { background: var(--ink); color: #fff; animation: pop 0.3s ease-out; }
+.wear { background: var(--card); box-shadow: 0 0 0 2px var(--teal) inset; color: var(--teal-ink); }
+.wear.on { background: var(--teal); color: #fff; box-shadow: none; }
+.buy:active, .wear:active { transform: scale(0.96); }
+.buy:focus-visible, .wear:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Homes as a journey: a path joins them, from the first home to the last */
+.shop-list.journey { position: relative; gap: 14px; }
+.shop-list.journey::before {
+  content: "";
+  position: absolute;
+  left: 40px;
+  top: 30px;
+  bottom: 30px;
+  border-left: 4px dotted #c3cfcd;
+}
+.shop-list.journey .item { z-index: 1; }
+
+/* The guide, under the top bar */
+.guide {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 var(--side-right) 8px var(--side-left);
+  padding: 8px 8px 8px 10px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
+  animation: rise 0.25s ease-out;
+}
+.guide-face { flex: none; width: 34px; height: auto; }
+.guide-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.guide-text small { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #9fdcd6; }
+.guide-text b { font-size: 13px; font-weight: 800; line-height: 1.3; }
+.guide-go {
+  flex: none;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.guide-go:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.hint { position: relative; z-index: 1; animation: hint 1.4s ease-in-out infinite; }
+@keyframes hint {
+  0%, 100% { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--orange), 0 0 0 5px rgba(255, 133, 21, 0.5); }
+  50% { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--orange), 0 0 0 13px rgba(255, 133, 21, 0); }
+}
+.harvest-all .item-art { margin: -4px 0; }
+
 /* A job's mini-game, over everything */
 .play { position: fixed; inset: 0; z-index: 20; background: var(--ink); }
 .play canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -655,5 +799,6 @@ h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 19px; 
 
 @media (prefers-reduced-motion: reduce) {
   .nemla-bob, .eyelids, .badge-in, .zzz text, .sparkle, .plot.ready .plot-act { animation: none; }
+  .hint { animation: none; box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--orange); }
   .nemla.bounce { animation: none; }
 }

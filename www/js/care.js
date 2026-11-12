@@ -2,9 +2,10 @@
 // returns what happened, for the screen to show:
 //   { ok: true, gained: { need: amount }, levels: [{ level, coins }] }
 //   { ok: false, why: 'sleeping' | 'full' | 'coins' | 'clean' | 'fun' | 'rested' | 'awake' }
-import { MEAL, PLAY_FUN, CARE_XP, NEED_FULL, levelUpCoins } from './economy.js';
+import { MEAL, CARE_XP, NEED_FULL, levelUpCoins } from './economy.js';
 import { addXp } from './level.js';
 import { earn, spend } from './wallet.js';
+import { perks } from './perks.js';
 
 const no = (why) => ({ ok: false, why });
 
@@ -13,9 +14,10 @@ export function eat(state) {
   if (state.nemla.sleeping) return no('sleeping');
   if (needs.hunger >= NEED_FULL) return no('full');
   if (!spend(state, MEAL.cost)) return no('coins');
-  needs.hunger = Math.min(100, needs.hunger + MEAL.hunger);
+  const { meal } = perks(state);
+  needs.hunger = Math.min(100, needs.hunger + meal);
   state.stats.meals += 1;
-  return done(state, { hunger: MEAL.hunger, coins: -MEAL.cost });
+  return done(state, { hunger: meal, coins: -MEAL.cost });
 }
 
 export function wash(state) {
@@ -23,18 +25,21 @@ export function wash(state) {
   if (state.nemla.sleeping) return no('sleeping');
   if (needs.clean >= NEED_FULL) return no('clean');
   const gained = Math.round(100 - needs.clean);
+  const { washFun } = perks(state);
   needs.clean = 100;
+  needs.fun = Math.min(100, needs.fun + washFun);
   state.stats.baths += 1;
-  return done(state, { clean: gained });
+  return done(state, washFun ? { clean: gained, fun: washFun } : { clean: gained });
 }
 
 export function play(state) {
   const { needs } = state.nemla;
   if (state.nemla.sleeping) return no('sleeping');
   if (needs.fun >= NEED_FULL) return no('fun');
-  needs.fun = Math.min(100, needs.fun + PLAY_FUN);
+  const { playFun } = perks(state);
+  needs.fun = Math.min(100, needs.fun + playFun);
   state.stats.plays += 1;
-  return done(state, { fun: PLAY_FUN });
+  return done(state, { fun: playFun });
 }
 
 export function sleep(state) {

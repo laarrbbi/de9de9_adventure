@@ -6,6 +6,7 @@
 import { CROPS, PLOTS_BY_HOME, plotPrice, MARKET_PER_DAY } from './economy.js';
 import { earn, spend } from './wallet.js';
 import { gainXp } from './care.js';
+import { owns, perks } from './perks.js';
 import { dayKey } from './clock.js';
 
 const MIN = 60e3;
@@ -15,11 +16,14 @@ export const cropById = (id) => CROPS.find((crop) => crop.id === id);
 export const emptyPlot = () => ({ crop: null, plantedAt: 0, readyAt: 0 });
 export const canGrow = (state, crop) => state.nemla.level >= crop.level;
 
-// How long a crop planted now would take, in ms.
+// How long a crop planted now would take, in ms. The sprinkler speeds it up.
 export function growTime(state, crop) {
   const firstOne = crop.first && !state.garden.planted[crop.id];
-  return (firstOne ? crop.first : crop.grow) * MIN;
+  return Math.round((firstOne ? crop.first : crop.grow) * MIN * perks(state).grow);
 }
+
+// What the market pays for one, with the straw hat's bonus.
+export const priceOf = (state, crop) => Math.round(crop.sell * (1 + perks(state).sells));
 
 export const isReady = (plot, now) => plot.crop !== null && now >= plot.readyAt;
 export const readyCount = (state, now) => state.garden.plots.filter((plot) => isReady(plot, now)).length;
@@ -91,11 +95,15 @@ export function buyPlot(state) {
   return { ok: true, price, index: plots.length - 1 };
 }
 
-// The market: how many more crops it buys today. Reading this never changes
-// the save; the count resets on the first sale of a new day.
+// The market: how many it buys a day (more with the pickup truck), and how
+// many more today. Reading this never changes the save; the count resets on
+// the first sale of a new day.
+export const marketSize = (state) => MARKET_PER_DAY * perks(state).market;
+
 export function marketLeft(state, now) {
   const { market } = state.garden;
-  return market.day === dayKey(now) ? Math.max(0, MARKET_PER_DAY - market.sold) : MARKET_PER_DAY;
+  const size = marketSize(state);
+  return market.day === dayKey(now) ? Math.max(0, size - market.sold) : size;
 }
 
 // Sells up to `count` of one crop from the barn, as many as the market
@@ -117,7 +125,7 @@ export function sell(state, id, now, count = Infinity) {
   market.sold += sold;
   state.garden.barn[id] = have - sold;
   state.stats.sold += sold;
-  const coins = sold * crop.sell;
+  const coins = sold * priceOf(state, crop);
   earn(state, coins);
   return { ok: true, crop: id, count: sold, coins, short: sold < wanted };
 }
@@ -127,7 +135,7 @@ export function sellAll(state, now) {
   let count = 0;
   let coins = 0;
   let short = false;
-  const best = [...CROPS].sort((a, b) => b.sell - a.sell);
+  const best = [...CROPS].sort((a, b) => priceOf(state, b) - priceOf(state, a));
   for (const crop of best) {
     if (!state.garden.barn[crop.id]) continue;
     const result = sell(state, crop.id, now);
@@ -142,6 +150,36 @@ export function sellAll(state, now) {
   }
   if (!count) return no(short ? 'market' : 'nothing');
   return { ok: true, count, coins, short };
+}
+
+// The tractor: harvests every ripe plot and plants it again with the same
+// crop, and plants the picked seed in every empty plot, while the coins
+// last. Returns what it did, or why it did nothing.
+export const hasTractor = (state) => owns(state, 'tractor');
+
+export function tractor(state, now) {
+  if (!hasTractor(state)) return no('missing');
+  const { plots, seed } = state.garden;
+  const got = {};
+  let harvested = 0;
+  let planted = 0;
+  let xp = 0;
+  let short = false;
+  plots.forEach((plot, index) => {
+    let crop = seed;
+    if (isReady(plot, now)) {
+      const picked = pick(state, plot);
+      got[picked.id] = (got[picked.id] ?? 0) + 1;
+      harvested += 1;
+      xp += picked.xp;
+      crop = picked.id;
+    } else if (plot.crop) return;
+    const result = plant(state, index, crop, now);
+    if (result.ok) planted += 1;
+    else if (result.why === 'coins') short = true;
+  });
+  if (!harvested && !planted) return no(short ? 'coins' : 'nothingToDo');
+  return { ok: true, harvested, planted, got, short, levels: gainXp(state, xp) };
 }
 
 export const barnTotal = (state) => Object.values(state.garden.barn).reduce((a, b) => a + b, 0);

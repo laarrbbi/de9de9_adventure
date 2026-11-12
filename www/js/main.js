@@ -4,12 +4,17 @@
 import { load, save } from './state.js';
 import { advance } from './clock.js';
 import * as care from './care.js';
-import { refreshBoard, jobById, payRange, ticket, finishJob } from './jobs.js';
+import { refreshBoard, fillBoard, postJob, runWorkshop, jobById, payRange, ticket, finishJob } from './jobs.js';
 import * as garden from './garden.js';
+import * as shop from './shop.js';
+import { advanceGuide, closeGuide, firstJob } from './guide.js';
+import { JOBS } from './economy.js';
 import { mountHud } from './ui/hud.js';
 import { mountHome } from './ui/home.js';
 import { mountGarden } from './ui/garden.js';
 import { mountWork } from './ui/work.js';
+import { mountShop } from './ui/shop.js';
+import { mountGuide } from './ui/guide.js';
 import { mountTabs } from './ui/tabs.js';
 import { openGame } from './ui/play.js';
 import { toast } from './ui/toast.js';
@@ -33,27 +38,53 @@ const storage = (() => {
 
 const { state, fresh } = load(storage, Date.now());
 const away = advance(state, Date.now()).ms;
-refreshBoard(state, Date.now());
+advanceGuide(state, { pay: false });
+newDay(Date.now());
 
 const screenEl = document.getElementById('screen');
-screenEl.innerHTML = ['home', 'garden', 'work'].map((name, i) => `<div data-screen="${name}"${i ? ' hidden' : ''}></div>`).join('');
+const NAMES = ['home', 'garden', 'work', 'shop'];
+screenEl.innerHTML = NAMES.map((name, i) => `<div data-screen="${name}"${i ? ' hidden' : ''}></div>`).join('');
+const place = (name) => screenEl.querySelector(`[data-screen="${name}"]`);
 const screens = {
-  home: mountHome(screenEl.querySelector('[data-screen="home"]'), { onAct: act }),
-  garden: mountGarden(screenEl.querySelector('[data-screen="garden"]'), { onAct: gardenAct }),
-  work: mountWork(screenEl.querySelector('[data-screen="work"]'), { onStart: startJob }),
+  home: mountHome(place('home'), { onAct: act }),
+  garden: mountGarden(place('garden'), { onAct: gardenAct }),
+  work: mountWork(place('work'), { onStart: startJob }),
+  shop: mountShop(place('shop'), { onAct: shopAct }),
 };
 const hud = mountHud(document.getElementById('hud'));
+const guide = mountGuide(document.getElementById('guide'), {
+  onGo: show,
+  onClose() {
+    closeGuide(state);
+    sfx.tap();
+    changed();
+  },
+});
 const tabs = mountTabs(document.getElementById('tabs'), {
   open: Object.keys(screens),
   onSelect: show,
   onLocked: (tab) => soon(t(`tab.${tab}`)),
 });
+let current = 'home';
+let playing = false;
 
 function show(name) {
   sfx.tap();
+  current = name;
   for (const el of screenEl.children) el.hidden = el.dataset.screen !== name;
   tabs.setActive(name);
   screenEl.scrollTop = 0;
+  render();
+}
+
+// A new day: a new job board, and the workshop's jobs if there is one.
+// Returns whether anything changed.
+function newDay(now) {
+  const board = refreshBoard(state, now);
+  firstJob(state);
+  const helped = runWorkshop(state, now);
+  if (helped) setTimeout(() => toast(t('toast.workshop', { n: helped.count, coins: num(helped.coins) }), 'gold'), 600);
+  return board || !!helped;
 }
 
 function act(name) {
@@ -63,13 +94,17 @@ function act(name) {
     return;
   }
   if (name === 'garden') return show('garden');
+  if (name === 'journey') {
+    screens.shop.open('home');
+    return show('shop');
+  }
   if (name === 'bed') name = state.nemla.sleeping ? 'wake' : 'sleep';
   if (!(name in CARE)) return;
 
   const result = care[name](state);
   if (refused(result)) return;
   sfx[CARE[name]]();
-  screens.home.react(name);
+  screens.home.react(name, result.gained);
   celebrate(result.levels);
   changed();
 }
@@ -109,6 +144,14 @@ function gardenAct(name, arg) {
     screens.garden.react('plot', arg, t('garden.harvested', { crop: cropName(result.crop) }));
     return celebrate(result.levels);
   }
+  if (name === 'tractor') {
+    const result = garden.tractor(state, now);
+    if (refused(result)) return;
+    sfx.harvest();
+    changed();
+    toast(t(result.short ? 'toast.tractorShort' : 'toast.tractor', { harvested: result.harvested, planted: result.planted }));
+    return celebrate(result.levels);
+  }
   if (name === 'harvestAll') {
     const result = garden.harvestAll(state, now);
     if (refused(result)) return;
@@ -134,6 +177,44 @@ function gardenAct(name, arg) {
       toast(t(result.short ? 'toast.soldShort' : 'toast.sold', { n: result.count, coins: num(result.coins) }));
     }
   }
+}
+
+// Shop actions, from the Shop screen. 'check' answers whether an item can
+// be bought, and says why not.
+function shopAct(name, id) {
+  if (name === 'check') {
+    const can = shop.check(state, id);
+    if (can.ok) sfx.tap();
+    else refused({ ...can, why: `shop.${can.why}`, home: can.home && t(`item.${can.home}`), short: can.short && num(can.short) });
+    return can.ok;
+  }
+  if (name === 'wear') {
+    if (refused(shop.wear(state, id || null))) return;
+    sfx.tap();
+    return changed();
+  }
+  if (name !== 'buy') return;
+  const result = shop.buy(state, id);
+  if (refused(result)) return;
+  const item = t(`item.${id}`);
+  if (result.kind === 'home') {
+    sfx.levelUp();
+    fillBoard(state);
+    changed();
+    show('home');
+    return toast(t('toast.moved', { home: item }), 'gold');
+  }
+  sfx.coins();
+  toast(t('toast.bought', { item }), 'gold');
+  // Whatever the item changes starts today, not tomorrow.
+  if (fillBoard(state)) toast(t('toast.moreJobs'));
+  for (const job of JOBS.filter((j) => j.needs === id)) {
+    postJob(state, job.id);
+    toast(t('toast.unlockedJob', { job: t(`job.${job.id}`) }));
+  }
+  const helped = runWorkshop(state, Date.now());
+  if (helped) toast(t('toast.workshop', { n: helped.count, coins: num(helped.coins) }), 'gold');
+  changed();
 }
 
 // Says why an action didn't happen. Returns whether it was refused.
@@ -169,6 +250,7 @@ function startJob(slot) {
   const pass = ticket(state, slot);
   let levels = [];
   sfx.tap();
+  playing = true;
   openGame(job.game, {
     name: t(`job.${job.id}`),
     client: t('play.for', { client: t(`client.${entry.client}`) }),
@@ -182,7 +264,11 @@ function startJob(slot) {
       return result;
     },
     onLeave(finished) {
-      if (!finished) return toast(t('play.stopped'));
+      playing = false;
+      if (!finished) {
+        render();
+        return toast(t('play.stopped'));
+      }
       sfx.coins();
       celebrate(levels);
       render();
@@ -204,9 +290,21 @@ function soon(name) {
 
 function render() {
   const now = Date.now();
+  if (!playing) guideProgress();
   hud.update(state);
   tabs.setBadge('garden', garden.readyCount(state, now));
   for (const screen of Object.values(screens)) screen.update(state, now);
+  guide.update(state, now, current, place(current));
+}
+
+// Pays for each guide step the player just finished.
+function guideProgress() {
+  const done = advanceGuide(state);
+  if (!done.steps) return;
+  setTimeout(sfx.coins, 300);
+  toast(t('toast.guideStep', { coins: done.coins }), 'gold');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persist, SAVE_DELAY);
 }
 
 let saveTimer = null;
@@ -233,7 +331,7 @@ setInterval(() => {
     sfx.wake();
     toast(t('toast.woke'));
   }
-  if (wokeUp || refreshBoard(state, now)) persist();
+  if (newDay(now) || wokeUp) persist();
   noticeReady(now);
   render();
 }, 1000);

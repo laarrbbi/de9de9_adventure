@@ -1,13 +1,14 @@
 // Real time. The game keeps running while the app is closed: on start, and
 // then every second, `advance` plays out everything since the last visit.
 import { passTime } from './needs.js';
+import { perks } from './perks.js';
 import { MAX_CATCH_UP_HOURS } from './economy.js';
 
 export function advance(state, now) {
   // A clock set back in time counts as no time passing.
   const ms = Math.min(Math.max(0, now - state.lastSeen), MAX_CATCH_UP_HOURS * 3600e3);
   const wasSleeping = state.nemla.sleeping;
-  passTime(state.nemla, ms);
+  passTime(state.nemla, ms, perks(state));
   state.lastSeen = now;
   return { ms, wokeUp: wasSleeping && !state.nemla.sleeping };
 }

@@ -34,8 +34,10 @@ function splitTitle(title) {
 }
 
 // A game is a spec: { id, title, hint, init, update, draw } plus optional
-// idle (ready-screen animation), canStart (veto the press that starts a
-// run) and the input hooks onDown / onMove / onUp / onTap / onSwipe.
+// idle (ready-screen animation), firstTapPlays (the tap that starts the run
+// is also a move), after (animation once the run is over),
+// canStart (veto the press that starts a run) and the input hooks
+// onDown / onMove / onUp / onTap / onSwipe.
 // Per-run state lives on g.s.
 //
 // `job` is { name, client, pay: [min, max], onEnd(score) → result, onClose() }.
@@ -188,8 +190,9 @@ function run(canvas, spec, job) {
     g.text(pay, left + 22, py + 82, 15, '#b06f00', { align: 'left' });
 
     g.text(spec.hint, g.W / 2, H * 0.62, fit(spec.hint, 800, 24, g.W - 32), '#fff', { stroke: INK });
-    // a game that needs a particular first tap says so in its hint
-    if (!spec.canStart) g.text(t('play.start'), g.W / 2, H * 0.62 + 40, 16, '#fff', { stroke: INK, weight: 700 });
+    // a game that needs a particular first tap says so in its hint, and in
+    // one whose first tap already plays (firstTapPlays) the hint is enough
+    if (!spec.canStart && !spec.firstTapPlays) g.text(t('play.start'), g.W / 2, H * 0.62 + 40, 16, '#fff', { stroke: INK, weight: 700 });
   }
 
   function drawDone() {
@@ -222,7 +225,10 @@ function run(canvas, spec, job) {
     g.time += dt;
     if (g.state === 'ready') spec.idle?.(g, dt);
     else if (g.state === 'playing') spec.update(g, dt);
-    else g.doneFor += dt;
+    else {
+      g.doneFor += dt;
+      spec.after?.(g, dt);
+    }
     spec.draw(g);
     if (g.state === 'ready') drawReady();
     else if (g.state === 'playing') g.text(String(g.score), g.W / 2, 110, 60, '#fff', { stroke: INK });
