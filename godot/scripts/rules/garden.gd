@@ -141,7 +141,8 @@ static func buy_plot(state: Dictionary) -> Dictionary:
 # The market: how many it buys a day (more with the pickup truck), and how
 # many more today. The count resets on the first sale of a new day.
 static func market_size(state: Dictionary) -> int:
-	return Economy.MARKET_PER_DAY * Perks.perks(state).market
+	var perks := Perks.perks(state)
+	return Economy.MARKET_PER_DAY * perks.market + perks.marketPlus
 
 
 static func market_left(state: Dictionary, now_ms: int) -> int:

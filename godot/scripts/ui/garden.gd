@@ -16,6 +16,12 @@ var _keys := {"seeds": "", "plots": "", "barn": ""}
 var _growing := []
 var _plot_cards := []
 var _rows := {}
+var _visitor: PanelContainer
+var _visitor_key := ""
+var _visitor_time: Label
+var _visitor_give: Control = null
+var _picking := false
+var _state := {}
 
 
 func _ready() -> void:
@@ -33,6 +39,10 @@ func _ready() -> void:
 	UI.on_tap(_harvest_all, func(): Game.garden_act(_harvest_all.get_meta("act", "harvestAll")))
 	top.add_child(UI.centered(_harvest_all))
 	add_child(top)
+
+	_visitor = UI.card(UI.GOLD_SOFT, 18, Vector4(12, 12, 12, 12), false)
+	_visitor.visible = false
+	add_child(_visitor)
 
 	_seeds = UI.grid(3, 8)
 	add_child(_seeds)
@@ -63,6 +73,8 @@ func _ready() -> void:
 
 
 func update(state: Dictionary, now: int) -> void:
+	_state = state
+	_draw_visitor(state, now)
 	var garden: Dictionary = state.garden
 	var ready := Garden.ready_count(state, now)
 	# With the tractor, one button harvests and replants everything.
@@ -95,6 +107,55 @@ func update(state: Dictionary, now: int) -> void:
 	var full: bool = garden.plots.size() >= Garden.room_for_plots(state)
 	_field_note.visible = full
 	_field_note.text = Words.t("garden.noRoom", {"n": Garden.room_for_plots(state)})
+
+
+# The bug visiting the garden, if any, with its gifts.
+func _draw_visitor(state: Dictionary, now: int) -> void:
+	var bug := Friends.visitor(state, now)
+	_visitor.visible = not bug.is_empty()
+	if bug.is_empty():
+		_picking = false
+		_visitor_key = ""
+		return
+	var key := "%s|%s|%s|%s" % [bug.id, _picking, state.garden.barn, state.coins >= Economy.GIFT_BOX]
+	if key != _visitor_key:
+		_visitor_key = key
+		UI.clear(_visitor)
+		var box := UI.vbox(10)
+		var row := UI.hbox(12)
+		var portrait := Gifts.portrait(bug.id, 52)
+		row.add_child(UI.centered(portrait))
+		_wiggle(portrait)
+		var text := UI.vbox(2)
+		text.size_flags_horizontal = SIZE_EXPAND_FILL
+		text.alignment = BoxContainer.ALIGNMENT_CENTER
+		text.add_child(UI.wrapped(UI.label(Words.t("visitor.title", {"bug": Words.t("bug." + bug.id)}), 15, UI.INK, "body800")))
+		_visitor_time = UI.wrapped(UI.label("", 12, UI.GOLD_INK, "body700"))
+		text.add_child(_visitor_time)
+		row.add_child(text)
+		box.add_child(row)
+		if _picking:
+			box.add_child(Gifts.picker(state, bug.id))
+		else:
+			var give_row := UI.hbox(6)
+			give_row.add_child(UI.centered(UI.picture("res://assets/art/icons/gift.svg", Vector2(22, 22))))
+			give_row.add_child(UI.label(Words.t("visitor.give"), 15, UI.INK, "display"))
+			_visitor_give = UI.button(give_row)
+			UI.on_tap(_visitor_give, func():
+				Sfx.tap()
+				_picking = true
+				_visitor_key = ""
+				update(_state, Clock.now()))
+			box.add_child(_visitor_give)
+		_visitor.add_child(box)
+	_visitor_time.text = Words.t("visitor.sub", {"crop": Words.t("crop." + bug.loves), "time": Words.countdown(state.visitor.until - now)})
+
+
+func _wiggle(node: Control) -> void:
+	node.pivot_offset = Vector2(30, 56)
+	var tween := node.create_tween().set_loops()
+	tween.tween_property(node, "rotation", 0.08, 0.6).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(node, "rotation", -0.08, 0.6).set_trans(Tween.TRANS_SINE)
 
 
 func _draw_seeds(state: Dictionary) -> void:
@@ -317,6 +378,8 @@ func react(what: String, data: Dictionary) -> void:
 
 
 func hint_target(name: String) -> Control:
+	if name == "visitor":
+		return _visitor if _picking else _visitor_give
 	var plots: Array = Game.state.garden.plots
 	var now := Clock.now()
 	for i in mini(plots.size(), _plot_cards.size()):

@@ -53,7 +53,8 @@ static func owns(state: Dictionary, id: String) -> bool:
 static func perks(state: Dictionary) -> Dictionary:
 	var p := {
 		"jobs": Economy.JOBS_PER_HOME * (mini(int(state.home.level), Economy.HOMES.size()) - 1),
-		"pay": 0.0, "market": 1, "grow": 1.0, "sells": 0.0, "sleep": 1.0, "helpers": 0,
+		"pay": 0.0, "market": 1, "marketPlus": 0, "grow": 1.0, "sells": 0.0, "sleep": 1.0, "helpers": 0,
+		"servicePay": {},
 		"drop": {"hunger": 1.0, "energy": 1.0, "clean": 1.0, "fun": 1.0},
 		"meal": Economy.MEAL.hunger, "washFun": 0, "playFun": Economy.PLAY_FUN,
 	}
@@ -71,7 +72,43 @@ static func perks(state: Dictionary) -> Dictionary:
 		p.meal = maxi(p.meal, item.get("meal", 0))
 		p.playFun = maxi(p.playFun, item.get("playFun", 0))
 		p.washFun += item.get("washFun", 0)
+	_add_friends(state, p)
+	# A messy room makes Nemla dirty twice as fast.
+	if state.get("problem", {}).get("kind", "") == "mess":
+		p.drop.clean *= 2.0
 	return p
+
+
+# Each bug friend helps all the time, more with each heart.
+static func _add_friends(state: Dictionary, p: Dictionary) -> void:
+	for bug in Economy.BUGS:
+		var h := Friends.hearts(state, bug.id) if state.has("friends") else 0
+		if h == 0:
+			continue
+		var v: float = bug.per_heart * h
+		match bug.perk:
+			"dropClean":
+				p.drop.clean *= 1.0 - v
+			"dropFun":
+				p.drop.fun *= 1.0 - v
+			"dropEnergy":
+				p.drop.energy *= 1.0 - v
+			"payTravaux", "payAuto", "payEvenement":
+				var service: String = bug.service
+				p.servicePay[service] = p.servicePay.get(service, 0.0) + v
+			"grow":
+				p.grow *= 1.0 - v
+			"market":
+				p.marketPlus += int(v)
+			"pay":
+				p.pay += v
+
+
+# What a friend's perk adds up to now, for the screen: a percent, or a count
+# for the firefly's market.
+static func friend_perk_value(state: Dictionary, bug: Dictionary) -> int:
+	var h := Friends.hearts(state, bug.id)
+	return roundi(bug.per_heart * h) if bug.perk == "market" else roundi(bug.per_heart * h * 100)
 
 
 # The items whose perks are working now.

@@ -80,14 +80,14 @@ func update(state: Dictionary, now: int) -> void:
 	_note.text = Words.t("work.newJobs", {"time": time}) if left else Words.t("work.allDone", {"time": time})
 
 	# The lists only change when a job is done, on a new day or a new level.
-	var key := "%s|%s|%s|%s" % [state.work.day, state.nemla.level, board.map(func(e): return e.paid), state.owned]
+	var key := "%s|%s|%s|%s|%s|%d" % [state.work.day, state.nemla.level, board.map(func(e): return e.paid), state.owned, state.problem.kind, board.size()]
 	if key == _key:
 		return
 	_key = key
 	UI.clear(_list)
 	_first_go = null
 	for slot in board.size():
-		_list.add_child(_job_card(board[slot], slot))
+		_list.add_child(_job_card(state, board[slot], slot))
 	UI.clear(_locked)
 	var locked := Economy.JOBS.filter(func(j): return not Jobs.can_take(state, j))
 	if not locked.is_empty():
@@ -103,7 +103,7 @@ func _service(job: Dictionary, faded := false) -> Control:
 	return UI.centered(circle)
 
 
-func _job_card(entry: Dictionary, slot: int) -> Control:
+func _job_card(state: Dictionary, entry: Dictionary, slot: int) -> Control:
 	var job := Jobs.job_by_id(entry.job)
 	var card := UI.card(Color("#eaf3f1") if entry.done else UI.CARD, 16, Vector4(12, 10, 10, 10), not entry.done)
 	var row := UI.hbox(12)
@@ -121,6 +121,16 @@ func _job_card(entry: Dictionary, slot: int) -> Control:
 		paid.add_child(UI.centered(UI.icon("check", 16, UI.TEAL_INK)))
 		paid.add_child(UI.label("+" + Words.num(entry.paid), 15, UI.TEAL_INK, "display"))
 		row.add_child(UI.centered(paid))
+	elif Jobs.blocked(state, job) != "":
+		var why := Jobs.blocked(state, job)
+		var chip := UI.card(UI.RED_SOFT, 13, Vector4(10, 0, 10, 0), false)
+		chip.custom_minimum_size.y = 44
+		var chip_row := UI.hbox(5)
+		chip_row.add_child(UI.centered(UI.picture("res://assets/art/problems/%s.svg" % why, Vector2(22, 22))))
+		chip_row.add_child(UI.centered(UI.label(Words.t("work." + why), 12, UI.RED_INK, "body800")))
+		chip.add_child(chip_row)
+		UI.on_tap(chip, func(): start.emit(slot))
+		row.add_child(UI.centered(chip))
 	else:
 		var go := UI.button(UI.price("+" + Words.num(job.pay), 15, UI.INK, 16))
 		UI.on_tap(go, func(): start.emit(slot))

@@ -19,6 +19,13 @@ static func job_by_id(id: String) -> Dictionary:
 	return {}
 
 
+# What stops a job from starting today, or "": a flat tire stops deliveries.
+static func blocked(state: Dictionary, job: Dictionary) -> String:
+	if job.service == "auto" and Friends.has_problem(state, "flatTire"):
+		return "flatTire"
+	return ""
+
+
 # A job needs Nemla's level, and the Shop item it names, if any.
 static func can_take(state: Dictionary, job: Dictionary) -> bool:
 	return state.nemla.level >= job.level and (not job.has("needs") or Perks.owns(state, job.needs))
@@ -106,12 +113,19 @@ static func is_tired(state: Dictionary) -> bool:
 	return Needs.average(state.nemla.needs) < Economy.NEEDS_TIRED
 
 
+static func is_sick(state: Dictionary) -> bool:
+	return Friends.has_problem(state, "sick")
+
+
 # Coins for a run, rounded to 5: the score sets the share of the base pay,
-# then the streak bonus, pay perks from the Shop and tiredness apply.
+# then the streak bonus, pay perks from the Shop and friends, and tiredness
+# or sickness apply.
 static func pay_for(state: Dictionary, job: Dictionary, score: int, now_ms: int) -> int:
 	var skill := Economy.PAY_MIN + clampf(float(score) / job.great, 0.0, 1.0) * (Economy.PAY_MAX - Economy.PAY_MIN)
-	var tired := Economy.TIRED_PAY if is_tired(state) else 1.0
-	var coins: float = job.pay * skill * (1.0 + streak_bonus(state, now_ms) + Perks.perks(state).pay) * tired
+	var tired := Economy.TIRED_PAY if is_tired(state) or is_sick(state) else 1.0
+	var perks := Perks.perks(state)
+	var bonus: float = streak_bonus(state, now_ms) + perks.pay + perks.servicePay.get(job.service, 0.0)
+	var coins: float = job.pay * skill * (1.0 + bonus) * tired
 	return maxi(5, roundi(coins / 5.0) * 5)
 
 
@@ -145,6 +159,7 @@ static func finish_job(state: Dictionary, run: Dictionary, score: int, now_ms: i
 		return {}
 	var job := job_by_id(run.job)
 	var tired := is_tired(state)
+	var sick := is_sick(state)
 	var bonus := streak_bonus(state, now_ms)
 	var coins := pay_for(state, job, score, now_ms)
 
@@ -162,4 +177,4 @@ static func finish_job(state: Dictionary, run: Dictionary, score: int, now_ms: i
 	for need in Economy.JOB_EFFECT:
 		needs[need] = clampf(needs[need] + Economy.JOB_EFFECT[need], 0.0, 100.0)
 
-	return {"coins": coins, "rating": rating(job, score), "tired": tired, "bonus": bonus, "levels": Care.gain_xp(state, Economy.JOB_XP)}
+	return {"coins": coins, "rating": rating(job, score), "tired": tired and not sick, "sick": sick, "bonus": bonus, "levels": Care.gain_xp(state, Economy.JOB_XP)}

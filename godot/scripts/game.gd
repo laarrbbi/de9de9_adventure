@@ -53,6 +53,8 @@ func start(loaded: Dictionary) -> void:
 	away_ms = Clock.advance(state, now).ms
 	Guide.advance(state, false)
 	new_day(now)
+	Friends.update_visitor(state, now)
+	Friends.update_problem(state, now)
 	last_ready = Garden.ready_count(state, now)
 
 
@@ -82,7 +84,15 @@ func _tick() -> void:
 	if woke:
 		Sfx.wake()
 		toast(Words.t("toast.woke"))
-	if new_day(now) or woke:
+	var arrived := Friends.update_visitor(state, now)
+	if arrived != "":
+		Sfx.giggle()
+		toast(Words.t("toast.visitor", {"bug": Words.t("bug." + arrived)}))
+	var problem := Friends.update_problem(state, now)
+	if problem != "":
+		Sfx.no()
+		toast(Words.t("toast.problem", {"problem": Words.t("problem." + problem)}))
+	if new_day(now) or woke or arrived != "" or problem != "":
 		persist()
 	_notice_ready(now)
 	if not playing:
@@ -283,6 +293,59 @@ func shop_buy(id: String) -> void:
 	touch()
 
 
+# Friends: a gift (a crop id or "box"), a friend's daily call, a problem fixed.
+func gift(id: String, what: String) -> void:
+	var result := Friends.give_gift(state, id, what, Clock.now())
+	if refused(_named(result)):
+		return
+	var bug := Words.t("bug." + id)
+	Sfx.harvest()
+	if result.new_friend:
+		Sfx.level_up()
+		toast(Words.t("toast.newFriend", {"bug": bug}), "gold")
+	else:
+		toast(Words.t("toast.loved" if result.loved else "toast.thanks", {"bug": bug, "n": result.points}))
+		if result.hearts > result.before:
+			toast(Words.t("toast.heart", {"bug": bug, "n": result.hearts}), "gold")
+	touch()
+
+
+func call_friend(id: String) -> void:
+	var result := Friends.call_friend(state, id, Clock.now())
+	if refused(_named(result)):
+		return
+	Sfx.giggle()
+	if result.favor == "coins":
+		Sfx.coins()
+	toast(Words.t("done." + result.favor, {"n": result.amount}), "gold")
+	celebrate(result.levels)
+	touch()
+
+
+func fix_problem(how: String) -> void:
+	var result := Friends.fix_problem(state, how, Clock.now())
+	if refused(_named(result)):
+		return
+	Sfx.wake()
+	toast(Words.t("toast.fixed", {"bug": Words.t("bug." + result.bug)}) if how == "friend" else Words.t("toast.fixedPaid"), "gold")
+	celebrate(result.levels)
+	touch()
+
+
+# A refusal with the bug's name in it, for the message.
+func _named(result: Dictionary) -> Dictionary:
+	if result.ok or not result.has("bug"):
+		return result
+	var named := result.duplicate()
+	named.bug = Words.t("bug." + result.bug)
+	return named
+
+
+func open_de9de9() -> void:
+	Sfx.tap()
+	OS.shell_open(Config.DE9DE9_URL)
+
+
 # Work: what the play screen needs to start a job, and paying when it ends.
 func job_ticket(slot: int) -> Dictionary:
 	var board: Array = state.work.board
@@ -290,6 +353,10 @@ func job_ticket(slot: int) -> Dictionary:
 		return {}
 	var entry: Dictionary = board[slot]
 	var job := Jobs.job_by_id(entry.job)
+	var blocked := Jobs.blocked(state, job)
+	if blocked != "":
+		refused({"ok": false, "why": blocked})
+		return {}
 	playing = true
 	Sfx.tap()
 	return {
@@ -304,7 +371,7 @@ func job_ticket(slot: int) -> Dictionary:
 func finish_job(run: Dictionary, score: int) -> Dictionary:
 	var result := Jobs.finish_job(state, run, score, Clock.now())
 	if result.is_empty():
-		return {"coins": 0, "rating": "ok", "bonus": 0.0, "tired": false, "levels": []}
+		return {"coins": 0, "rating": "ok", "bonus": 0.0, "tired": false, "sick": false, "levels": []}
 	touch()
 	return result
 

@@ -27,6 +27,8 @@ static func wash(state: Dictionary) -> Dictionary:
 	var needs: Dictionary = state.nemla.needs
 	if state.nemla.sleeping:
 		return no("sleeping")
+	if Friends.has_problem(state, "leak"):
+		return no("leak")
 	if needs.clean >= Economy.NEED_FULL:
 		return no("clean")
 	var gained := roundi(100.0 - needs.clean)
@@ -41,6 +43,8 @@ static func play(state: Dictionary) -> Dictionary:
 	var needs: Dictionary = state.nemla.needs
 	if state.nemla.sleeping:
 		return no("sleeping")
+	if Friends.has_problem(state, "brokenRadio"):
+		return no("brokenRadio")
 	if needs.fun >= Economy.NEED_FULL:
 		return no("fun")
 	var play_fun: int = Perks.perks(state).playFun

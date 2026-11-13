@@ -52,7 +52,7 @@ npm run android       # syncs www/ and opens Android Studio
 
 ## Done so far
 
-Steps M0 to M4 are in both versions.
+Steps M0 to M4 are in both versions; from M5 on, only in the Godot game.
 
 
 - **M0 Setup:** project, assets, save system, tests, smoke test.
@@ -75,6 +75,12 @@ Steps M0 to M4 are in both versions.
   Stack); the tractor harvests and replants in one tap; the workshop does 2
   jobs a day for you. The Homes section is Nemla's journey, and the card at
   home shows the next home to save for. A guide leads the first 5 minutes.
+- **M5 Bug friends** (Godot): 9 bugs, one per De9De9 service, visit the
+  garden; gifts make them friends and grow their hearts; each friend helps
+  once a day when called and all the time with a perk. Problems at home (a
+  leak, a broken radio, a mess, a flat tire, sickness) are fixed by the
+  right friend, with "In real life? Open De9De9" links. The Friends tab is
+  the bug book.
 
 To add a job: add it to `JOBS` in `economy.js` and its name to `text.js`. A
 new mini-game goes in `www/js/minigames/` and in `minigames/index.js`.

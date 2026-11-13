@@ -8,6 +8,7 @@ const SCREENS := {
 	"garden": preload("res://scripts/ui/garden.gd"),
 	"work": preload("res://scripts/ui/work.gd"),
 	"shop": preload("res://scripts/ui/shop.gd"),
+	"friends": preload("res://scripts/ui/friends.gd"),
 }
 
 var screens := {}
@@ -149,7 +150,8 @@ func render() -> void:
 	var state := Game.state
 	var now := Clock.now()
 	_hud.update(state)
-	_tabs.set_badge("garden", Garden.ready_count(state, now))
+	_tabs.set_badge("garden", Garden.ready_count(state, now) + (1 if not Friends.visitor(state, now).is_empty() else 0))
+	_tabs.set_badge("friends", Friends.calls_left(state, now))
 	screens[current].update(state, now)
 	var guide: Dictionary = _guide.update(state, now, current)
 	_ring.target = null

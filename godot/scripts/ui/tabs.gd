@@ -6,7 +6,7 @@ signal selected(tab: String)
 signal locked(tab: String)
 
 const TABS := ["home", "garden", "work", "shop", "friends", "map"]
-const OPEN := ["home", "garden", "work", "shop"]
+const OPEN := ["home", "garden", "work", "shop", "friends"]
 
 var _tabs := {}
 var _badges := {}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 64 64">
+    
+  <path d="M29 18Q26 10.8 24 6M35 18Q38 10.8 40 6" fill="none" stroke="#2f3f47" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="24" cy="6" r="2.4" fill="#2f3f47"/><circle cx="40" cy="6" r="2.4" fill="#2f3f47"/>
+    <ellipse cx="17" cy="26" rx="13" ry="11" fill="#ff8fb1" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="47" cy="26" rx="13" ry="11" fill="#ff8fb1" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="19" cy="46" rx="10" ry="9" fill="#b98cff" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="45" cy="46" rx="10" ry="9" fill="#b98cff" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="15" cy="25" r="4" fill="#fff" opacity="0.8"/><circle cx="49" cy="25" r="4" fill="#fff" opacity="0.8"/>
+    <ellipse cx="32" cy="40" rx="6" ry="17" fill="#5b3a6b" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="32" cy="24" r="9" fill="#5b3a6b" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    
+  <circle cx="29.8" cy="24" r="2.53" fill="#fff" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="34.2" cy="24" r="2.53" fill="#fff" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="30.240000000000002" cy="24.33" r="1.265" fill="#2f3f47"/>
+  <circle cx="34.64" cy="24.33" r="1.265" fill="#2f3f47"/>
+  <circle cx="30.68" cy="23.78" r="0.44000000000000006" fill="#fff"/>
+  <circle cx="35.080000000000005" cy="23.78" r="0.44000000000000006" fill="#fff"/>
+  <path d="M29.8 27.85Q32 29.775 34.2 27.85" fill="none" stroke="#2f3f47" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="25.95" cy="27.3" r="1.1" fill="#ff9aa2" opacity="0.8"/>
+  <circle cx="38.05" cy="27.3" r="1.1" fill="#ff9aa2" opacity="0.8"/></svg>

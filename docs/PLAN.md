@@ -65,27 +65,46 @@ Work a job → earn coins → buy equipment → take bigger jobs → buy the dre
 
 A guide under the top bar leads these steps: it says what to do, has a "Go"
 button to the right tab, and rings the thing to tap. Each step pays 20
-coins. Step 5 joins the guide with the bug friends (M5).
+coins. In step 5, Snail visits once the first mint is sold.
 
 ### Bug friends and De9De9 services
 
-| Service | Friend | Fixes at home | Perk |
-|---|---|---|---|
-| Maison | Snail | Messy rooms | Cleans: fills "clean" |
-| Travaux | Scarab beetle | Leaks, broken walls | Digs new rooms faster |
-| Auto | Ladybug | The car breaks down | Car trips cost less time |
-| Beauté | Butterfly | Bad hair day | Outfits give a mood bonus |
-| Santé | Bee | Nemla is sick | Heals; crops grow 20% faster |
-| Sport | Grasshopper | Low energy | Training fills "energy" |
-| Cours | Praying mantis | Nemla can't do a job yet | Teaches skills: higher job pay |
-| Événement | Cricket | A boring evening | Festivals pay extra |
-| Multimédia | Firefly | Broken phone or TV | Unlocks evenings at home |
+As built in step 6 (Godot). Bugs visit the garden in this order, from the
+level shown; the first gift makes a friend.
+
+| Service | Friend | Meets at | Loves | Fixes at home | Call (once a day) | Helps all the time, per heart |
+|---|---|---|---|---|---|---|
+| Maison | Snail | Level 1 | Mint | A messy room | Cleans up: Clean full | Clean drops 5% slower |
+| Travaux | Beetle | Level 1 | Wheat | A leaking pipe | Brings materials: 40 coins a heart | +4% pay on Travaux jobs |
+| Auto | Ladybug | Level 2 | Tomato | A flat tire | Finds a delivery job | +4% pay on Auto jobs |
+| Santé | Bee | Level 2 | Mint | Nemla is sick | Brings honey: Hunger +20, +5 a heart | Crops grow 4% faster |
+| Multimédia | Firefly | Level 3 | Wheat | A broken radio | Lights the garden: crops 10 min a heart closer | The market buys 2 more a day |
+| Beauté | Butterfly | Level 3 | Tomato | | Makeover: Fun +20, +5 a heart, Clean +10 | Fun drops 5% slower |
+| Événement | Cricket | Level 4 | Wheat | | Concert: Fun full | +6% pay on Événement jobs |
+| Sport | Grasshopper | Level 4 | Mint | | Training: Energy +25, +5 a heart | Energy drops 5% slower |
+| Cours | Praying mantis | Level 5 | Tomato | | Lesson: 10 XP a heart | +2% pay on every job |
 
 You befriend a bug by giving it gifts. There is no catching and no throwing
 anything at creatures: Nintendo sued Palworld's studio over patents in 2024,
-so we keep our own way of making friends. Each
-friend has a level and 5 friendship hearts. You can call each friend once a
-day for free. Home problems come with a small "In real life? Open De9De9" link.
+so we keep our own way of making friends.
+
+- **Gifts:** a crop from the barn (the bug's favourite counts double) or a
+  gift box for 30 coins. One gift per friend a day. Hearts come at 1, 4, 9,
+  16 and 25 points.
+- **Visitors:** one bug at a time stays in the garden for 4 hours; the next
+  comes 2 to 5 hours later. New bugs first; once all the bugs of your level
+  are friends, friends drop by for gifts.
+- **Calls:** each friend once a day, for the favour above.
+- **Problems at home:** the first comes an hour after the guide, then one
+  every 8 to 16 hours. A leak stops baths, a broken radio stops music, a
+  mess makes Nemla dirty twice as fast, a flat tire stops deliveries, and
+  sickness cuts job pay by 20%. The right friend fixes it for free (and
+  gets a friendship point); otherwise it costs 60 coins. Every problem card
+  has an "In real life? Open De9De9" link, and every friend a link to its
+  De9De9 service.
+- Butterfly, Cricket, Grasshopper and Mantis fix no problem yet; problems
+  for them (a bad hair day, a boring evening, low energy, a job Nemla can't
+  do yet) can come later.
 
 ---
 
@@ -189,10 +208,10 @@ number so old saves can be upgraded:
   owned: { cars: ['scooter'], equipment: ['sprinkler'], clothes: ['redCap'] },  // bought ones; the leaf cart and watering can come free
   guide: { step: 6 },                   // the first-5-minutes guide; 6 = finished
   places: ['home'],
-  friends: { beetle: { level: 3, hearts: 3, calledOn: '2026-10-31' } },
-  visitors: [{ bug: 'butterfly', until: 0 }],
+  friends: { beetle: { points: 9, giftDay: '2026-10-31', callDay: '2026-10-31' } },  // 9 points = 3 hearts
+  visitor: { bug: 'butterfly', until: 0, nextAt: 0 },
+  problem: { kind: 'leak', since: 0, nextAt: 0 },
   work: { day: '2026-10-31', board: [], done: 5, streak: 4, lastWorked: '2026-10-31', helpedDay: '2026-10-31' },
-  events: [{ kind: 'leak', room: 'kitchen', since: 0 }],
   rewards: { giftStreak: 3, lastGiftDay: '2026-10-30', trophies: [], title: 'worker' }
 }
 ```
@@ -228,7 +247,7 @@ the save survives closing the app.
   digging rooms, cars, equipment with real perks, clothes, the Journey
   screen, and the first-5-minutes tutorial.
   *Try it:* save up, move into the Anthill, buy a scooter, unlock deliveries.
-- [ ] **M5. Bug friends.** The 9 friends, garden visitors, gifts and
+- [x] **M5. Bug friends.** The 9 friends, garden visitors, gifts and
   hearts, home problems fixed by the right friend, perks, the bug book,
   the "Open De9De9" links. *Try it:* a leak appears and you call Beetle.
 

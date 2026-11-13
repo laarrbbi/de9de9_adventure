@@ -19,6 +19,8 @@ var _goal_reward: HBoxContainer
 var _goal_bar: Bar
 var _goal_note: Label
 var _goal_key := ""
+var _problem: PanelContainer
+var _problem_key := ""
 
 
 func _ready() -> void:
@@ -42,6 +44,10 @@ func _ready() -> void:
 	_scene = preload("res://scripts/ui/home_scene.gd").new()
 	_scene.size_flags_horizontal = SIZE_EXPAND_FILL
 	add_child(_scene)
+
+	_problem = UI.card(UI.RED_SOFT, 18, Vector4(12, 12, 12, 8), false)
+	_problem.visible = false
+	add_child(_problem)
 
 	var grid := UI.grid(2, 10)
 	for need in Needs.NEEDS:
@@ -133,6 +139,52 @@ func update(state: Dictionary, now: int) -> void:
 		else:
 			n.act.text = Words.t("act." + ACT[need])
 	_update_goal(state)
+	_update_problem(state)
+
+
+# A problem at home: what it does, and who can fix it.
+func _update_problem(state: Dictionary) -> void:
+	var kind := Friends.problem(state)
+	_problem.visible = kind != ""
+	var bug := Friends.fixer(kind) if kind != "" else {}
+	var friend := kind != "" and Friends.is_friend(state, bug.id)
+	var key := "%s|%s|%s" % [kind, friend, state.coins >= Economy.FIX_COST]
+	if kind == "" or key == _problem_key:
+		return
+	_problem_key = key
+	UI.clear(_problem)
+	var box := UI.vbox(8)
+	var row := UI.hbox(12)
+	var circle := UI.card(UI.CARD, 26, Vector4.ZERO, false)
+	circle.custom_minimum_size = Vector2(52, 52)
+	circle.add_child(UI.centered(UI.picture("res://assets/art/problems/%s.svg" % kind, Vector2(40, 40))))
+	row.add_child(UI.centered(circle))
+	var text := UI.vbox(2)
+	text.size_flags_horizontal = SIZE_EXPAND_FILL
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.add_child(UI.wrapped(UI.label(Words.t("problem." + kind), 15, UI.INK, "body800")))
+	text.add_child(UI.wrapped(UI.label(Words.t("problem.%s.effect" % kind), 12, UI.RED_INK, "body700")))
+	row.add_child(text)
+	box.add_child(row)
+	var name := Words.t("bug." + bug.id)
+	if friend:
+		var call_row := UI.hbox(8)
+		call_row.add_child(UI.centered(Gifts.portrait(bug.id, 26)))
+		call_row.add_child(UI.label(Words.t("problem.call", {"bug": name}), 15, Color.WHITE, "display"))
+		var call := UI.button(call_row, UI.TEAL_INK, Color.WHITE, 15, Vector4(8, 0, 12, 0), 13, 48)
+		UI.on_tap(call, func(): Game.fix_problem("friend"))
+		box.add_child(call)
+	else:
+		var pay_row := UI.hbox(6)
+		pay_row.add_child(UI.label(Words.t("problem.pay"), 15, UI.INK, "display"))
+		pay_row.add_child(UI.centered(UI.coin(16)))
+		pay_row.add_child(UI.label(str(Economy.FIX_COST), 15, UI.INK, "display"))
+		var pay := UI.button(pay_row)
+		UI.on_tap(pay, func(): Game.fix_problem("pay"))
+		box.add_child(pay)
+		box.add_child(UI.wrapped(UI.label(Words.t("problem.meet", {"bug": name}), 12, UI.MUTED, "body600")))
+	box.add_child(Gifts.link(Words.t("problem.real")))
+	_problem.add_child(box)
 
 
 # The next home: how far the coins are from its price.

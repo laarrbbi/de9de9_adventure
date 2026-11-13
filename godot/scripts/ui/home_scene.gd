@@ -9,6 +9,8 @@ const SIZE := ArtLayout.SCENE
 const RADIUS := 24.0
 # What tapping each thing does.
 const ACTS := {"sign": "garden", "play": "play", "bed": "bed", "wash": "wash", "eat": "eat"}
+# Where a problem at home shows, centred, in scene units.
+const PROBLEM_SPOTS := {"leak": Vector2(272, 258), "brokenRadio": Vector2(122, 186), "mess": Vector2(126, 330), "sick": Vector2(228, 196), "flatTire": Vector2(290, 50)}
 
 var _stage: Control
 var _look := ""
@@ -27,6 +29,8 @@ var _speech: PanelContainer
 var _speech_label: Label
 var _bob: Tween
 var _state := {}
+var _problem: TextureRect
+var _problem_kind := ""
 
 
 func _ready() -> void:
@@ -161,6 +165,18 @@ func _build(level: int, rooms: Array, outfit: String) -> void:
 		var l := UI.label("z" if z[2] < 19 else "Z", z[2], Color.WHITE, "display")
 		l.position = Vector2(z[0], z[1])
 		_zzz.add_child(l)
+	_problem = TextureRect.new()
+	_problem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_problem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_problem.size = Vector2(34, 34)
+	_problem.pivot_offset = Vector2(17, 17)
+	_problem.mouse_filter = MOUSE_FILTER_IGNORE
+	_problem.visible = false
+	_stage.add_child(_problem)
+	_problem_kind = ""
+	var shake := _problem.create_tween().set_loops()
+	shake.tween_property(_problem, "rotation", 0.15, 0.4).set_trans(Tween.TRANS_SINE)
+	shake.tween_property(_problem, "rotation", -0.15, 0.4).set_trans(Tween.TRANS_SINE)
 	_fx = Control.new()
 	_fx.mouse_filter = MOUSE_FILTER_IGNORE
 	_stage.add_child(_fx)
@@ -210,6 +226,13 @@ func update(state: Dictionary, now: int) -> void:
 	for need in Needs.NEEDS:
 		_thoughts[need].visible = need == worst
 		_set_badge(need, need == worst)
+	var kind: String = state.get("problem", {}).get("kind", "")
+	if kind != _problem_kind:
+		_problem_kind = kind
+		_problem.visible = kind != ""
+		if kind != "":
+			_problem.texture = UI.tex(ART + "problems/%s.svg" % kind)
+			_problem.position = PROBLEM_SPOTS[kind] - _problem.size / 2
 
 
 func _set_badge(need: String, on: bool) -> void:

@@ -1,9 +1,9 @@
 # De9De9 Adventure, native (Godot 4.7)
 
 The game as a native app, built with [Godot 4.7](https://godotengine.org).
-Same game as the web prototype in `../www`: Nemla at home, the garden and
-market, De9De9 jobs played as mini-games, the Shop with 5 homes, and the
-first-5-minutes guide.
+Nemla at home, the garden and market, De9De9 jobs played as mini-games, the
+Shop with 5 homes, the first-5-minutes guide, and the bug friends (from
+step 6, only in this version; the web prototype in `../www` stops at step 5).
 
 ## Open it
 
@@ -39,32 +39,41 @@ runs every game-rule test headless and fails on any script error.
 xvfb-run godot --path godot --resolution 780x1688 -s res://tests/shots.gd -- /tmp/shots
 ```
 
-opens the game, plays through a new game (the guide, a job, the garden)
-and a saved-up one (the villa, the shop), checks a few things, and saves a
+opens the game, plays through a new game (the guide, a job, the garden,
+Snail's visit) and a saved-up one (the villa, a leak fixed by Beetle, the
+friends, the shop, a flat tire), checks a few things, and saves a
 screenshot of each screen. It never touches the player's save.
 
 ## Where things are
 
 | Path | What |
 |---|---|
-| `scripts/rules/` | The game rules: `economy.gd` (every number), needs, care, jobs, garden, shop, perks, guide, clock, the save |
+| `scripts/rules/` | The game rules: `economy.gd` (every number), needs, care, jobs, garden, shop, friends, perks, guide, clock, the save |
 | `scripts/game.gd` | The game (autoload `Game`): loads, saves, runs the clock, carries out what the player does |
 | `scripts/ui/` | The screens, built in code from `ui.gd` (colours, fonts, cards) |
 | `scripts/ui/home_scene.gd` | Nemla's home, drawn in layers |
 | `scripts/minigames/` | `mini_game.gd` (the shared shell) and the four job games |
 | `scripts/sfx.gd` | The sounds, made in code (autoload `Sfx`) |
-| `scripts/words.gd`, `words_en.gd` | Every word; `words_en.gd` is generated |
+| `scripts/words.gd`, `words_en.gd`, `words_more.gd` | Every word: `words_en.gd` is generated from the web version, `words_more.gd` holds the words only this game has |
 | `scripts/art_layout.gd`, `assets/art/` | Where the home's pieces go, and the drawings; generated |
 | `tools/` | The tools that generate the drawings and words from the web version |
 | `tests/` | Rule tests (`run.sh`) and the screenshot run (`shots.gd`) |
 
 ## Change the art or the words
 
-The drawings and words come from the web version, so both stay the same:
+The drawings and words of steps 1 to 5 come from the web version, so both
+stay the same:
 
 ```bash
 node godot/tools/export_art.mjs    # www/js/art → godot/assets/art and art_layout.gd
 node godot/tools/export_text.mjs   # www/js/text.js → godot/scripts/words_en.gd
+```
+
+What only this game has is drawn by `tools/draw_friends.mjs` (the bugs, the
+problems at home, hearts, the gift box) and worded in `scripts/words_more.gd`.
+
+```bash
+node godot/tools/draw_friends.mjs  # → godot/assets/art/bugs, problems, icons
 ```
 
 Then open Godot once so it imports the new files.

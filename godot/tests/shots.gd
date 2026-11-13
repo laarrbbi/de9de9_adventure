@@ -83,6 +83,19 @@ func _run() -> void:
 	await _frames(4)
 	_check(game.state.work.board[0].done, "the job to show as done")
 
+	# The guide's friend step: Snail visits the garden and gets a gift.
+	game.state.guide.step = Guide.STEPS.find(Guide.STEPS.filter(func(x): return x.id == "friend")[0])
+	game._tick()
+	main.show_screen("garden")
+	_check(not Friends.visitor(game.state, Clock.now()).is_empty(), "Snail to visit at the guide's friend step")
+	await _shot("6b_garden_visitor")
+	main.screens.garden._picking = true
+	main.render()
+	await _shot("6c_gift_picker")
+	game.gift("snail", "box")
+	_check(Friends.is_friend(game.state, "snail"), "a gift to make Snail a friend")
+	_check(Guide.step(game.state).get("id", "") == "goal", "the guide to move on to the goal")
+
 	# A saved-up game in the villa, with a full garden and the shop.
 	var rich := SaveGame.new_game(now - 9 * Clock.DAY_MS)
 	rich.coins = 60000
@@ -100,8 +113,31 @@ func _run() -> void:
 	rich.garden.plots = plots
 	rich.garden.barn = {"mint": 4, "wheat": 2, "tomato": 0}
 	rich.garden.planted = {"mint": 3, "wheat": 1, "tomato": 1}
+	rich.friends = {"snail": {"points": 9, "giftDay": "", "callDay": ""}, "beetle": {"points": 4, "giftDay": "", "callDay": ""},
+		"ladybug": {"points": 1, "giftDay": "", "callDay": ""}, "bee": {"points": 16, "giftDay": "", "callDay": ""}}
+	rich.problem = {"kind": "leak", "since": now, "nextAt": 0}
+	rich.visitor = {"bug": "", "until": 0, "nextAt": now + 3600000}
 	await _game(rich)
 	await _shot("8_home_villa")
+	main._scroll.scroll_vertical = 300
+	await _shot("8b_home_problem")
+	_check(Care.wash(game.state).why == "leak", "no bath while the pipe leaks")
+	game.fix_problem("friend")
+	_check(Friends.problem(game.state) == "", "Beetle to fix the leak")
+	main.show_screen("friends")
+	await _shot("13_friends")
+	var coins: int = game.state.coins
+	game.call_friend("beetle")
+	_check(game.state.coins == coins + Economy.FAVOR.coins * 2, "Beetle's call to bring coins")
+	main.screens.friends._toggle("snail")
+	await _shot("14_friends_gift")
+	main._scroll.scroll_vertical = 2000
+	await _shot("15_friends_strangers")
+	game.state.problem.kind = "flatTire"
+	main.show_screen("work")
+	await _shot("16_work_flat_tire")
+	game.state.problem.kind = ""
+	game.touch()
 	main.show_screen("garden")
 	await _shot("9_garden_full")
 	main.show_screen("shop")

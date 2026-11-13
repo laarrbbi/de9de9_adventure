@@ -317,6 +317,8 @@ func _draw_done() -> void:
 		notes.append(Words.t("play.streak", {"pct": roundi(result.bonus * 100)}))
 	if result.get("tired", false):
 		notes.append(Words.t("play.tired"))
+	if result.get("sick", false):
+		notes.append(Words.t("play.sick"))
 	var pw := minf(280, W - 40)
 	var ph := 222.0 + notes.size() * 20
 	var x := (W - pw) / 2

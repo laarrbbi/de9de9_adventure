@@ -142,6 +142,46 @@ const CLOTHES := [
 # The first 5 minutes: each step of the guide pays this much.
 const GUIDE_STEP_COINS := 20
 
+# Bug friends, one for each De9De9 service, in the order Nemla meets them.
+# `meet` is the level from which the bug visits the garden; `loves` is the
+# crop that counts double as a gift; `fixes` is the home problem it fixes;
+# `favor` is what it does when called (once a day); `perk` is what it does
+# all the time, stronger with each heart (`per_heart`).
+const BUGS := [
+	{"id": "snail", "service": "maison", "meet": 1, "loves": "mint", "fixes": "mess", "favor": "clean", "perk": "dropClean", "per_heart": 0.05},
+	{"id": "beetle", "service": "travaux", "meet": 1, "loves": "wheat", "fixes": "leak", "favor": "coins", "perk": "payTravaux", "per_heart": 0.04},
+	{"id": "ladybug", "service": "auto", "meet": 2, "loves": "tomato", "fixes": "flatTire", "favor": "job", "perk": "payAuto", "per_heart": 0.04},
+	{"id": "bee", "service": "sante", "meet": 2, "loves": "mint", "fixes": "sick", "favor": "honey", "perk": "grow", "per_heart": 0.04},
+	{"id": "firefly", "service": "multimedia", "meet": 3, "loves": "wheat", "fixes": "brokenRadio", "favor": "light", "perk": "market", "per_heart": 2},
+	{"id": "butterfly", "service": "beaute", "meet": 3, "loves": "tomato", "favor": "makeover", "perk": "dropFun", "per_heart": 0.05},
+	{"id": "cricket", "service": "evenement", "meet": 4, "loves": "wheat", "favor": "concert", "perk": "payEvenement", "per_heart": 0.06},
+	{"id": "grasshopper", "service": "sport", "meet": 4, "loves": "mint", "favor": "training", "perk": "dropEnergy", "per_heart": 0.05},
+	{"id": "mantis", "service": "cours", "meet": 5, "loves": "tomato", "favor": "lesson", "perk": "pay", "per_heart": 0.02},
+]
+
+# Friendship: a gift is worth 1 point, the bug's favourite crop 2. Hearts
+# come at these points (the first gift makes a friend). One gift and one call
+# per friend per day.
+const HEARTS_AT := [1, 4, 9, 16, 25]
+const GIFT_BOX := 30          # coins for a gift box, when the barn is empty
+const LOVED_POINTS := 2
+
+# Garden visitors: a bug stays this long, and the next one comes after a gap.
+const VISIT_HOURS := 4
+const VISIT_GAP_HOURS := [2, 5]
+
+# What a friend's call does, by hearts (h): see Friends.call_friend.
+const FAVOR := {"coins": 40, "honey": 20, "light_minutes": 10, "makeover": 20, "training": 25, "lesson_xp": 10}
+
+# Problems at home. Each one is fixed for free by its bug friend (calling
+# it doesn't use the day's call), or by paying FIX_COST. They come every
+# PROBLEM_GAP_HOURS, never while the guide is on.
+const PROBLEMS := ["leak", "brokenRadio", "mess", "flatTire", "sick"]
+const PROBLEM_GAP_HOURS := [8, 16]
+const FIRST_PROBLEM_HOURS := 1
+const FIX_COST := 60
+const FIX_XP := 5
+
 # The longest absence the game catches up on, so a phone whose clock jumps
 # ahead can't fast-forward months.
 const MAX_CATCH_UP_HOURS := 24 * 7

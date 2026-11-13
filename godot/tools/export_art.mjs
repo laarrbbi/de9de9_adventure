@@ -22,7 +22,9 @@ const OUT = join(ROOT, 'assets', 'art');
 const SCALE = 3;
 const SKY = { day: '#c9eef2', night: '#22335c' };
 
-rmSync(OUT, { recursive: true, force: true });
+// Clears only the folders this tool writes: icons/ and the bugs and problems
+// also hold drawings from draw_friends.mjs.
+for (const dir of ['home', 'nemla', 'crops', 'items', 'fx']) rmSync(join(OUT, dir), { recursive: true, force: true });
 const files = [];
 function svg(path, [x, y, w, h], body, scale = SCALE) {
   const file = join(OUT, path);

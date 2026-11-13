@@ -252,10 +252,6 @@ const WORDS := {
 	"time.hmin": "{h} h {m} min",
 	"time.hours": "{n} h",
 	"time.days": "{n} days",
-	"garden.sign": "GARDEN",
-	"hud.points.short": "De9De9",
-	"play.leave": "Leave",
-	"settings.sound": "Sound",
 }
 
 const SAYINGS := {

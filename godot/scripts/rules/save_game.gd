@@ -4,7 +4,7 @@
 class_name SaveGame
 
 const PATH := "user://save.json"
-const VERSION := 1
+const VERSION := 2
 
 
 static func per_crop() -> Dictionary:
@@ -30,8 +30,11 @@ static func new_game(now_ms: int) -> Dictionary:
 		"owned": {"cars": [], "equipment": [], "clothes": []},
 		"work": {"day": "", "board": [], "earnedToday": 0, "done": 0, "streak": 0, "lastWorked": "", "helpedDay": ""},
 		"garden": {"plots": plots, "seed": Economy.CROPS[0].id, "barn": per_crop(), "planted": per_crop(), "market": {"day": "", "sold": 0}},
-		"stats": {"meals": 0, "baths": 0, "plays": 0, "naps": 0, "harvests": 0, "sold": 0},
+		"stats": {"meals": 0, "baths": 0, "plays": 0, "naps": 0, "harvests": 0, "sold": 0, "gifts": 0, "calls": 0, "fixes": 0},
 		"guide": {"step": 0},
+		"friends": {},
+		"visitor": {"bug": "", "until": 0, "nextAt": 0},
+		"problem": {"kind": "", "since": 0, "nextAt": 0},
 	}
 
 
@@ -46,7 +49,23 @@ static func load_game(now_ms: int, path := PATH) -> Dictionary:
 		if keep:
 			keep.store_string(raw)
 		return {"state": new_game(now_ms), "fresh": true}
-	return {"state": fill_in(whole_numbers(saved), new_game(now_ms)), "fresh": false}
+	saved = whole_numbers(saved)
+	while saved.version < VERSION:
+		saved = upgrade(saved)
+	return {"state": fill_in(saved, new_game(now_ms)), "fresh": false}
+
+
+# Brings a save one version up. Fields that are only new get filled in by
+# fill_in; this is for changes to what is already there.
+static func upgrade(saved: Dictionary) -> Dictionary:
+	match int(saved.version):
+		1:
+			# The guide got a step (meeting the first friend) before its goal.
+			# A save already at the goal skips it; the first visitor still comes.
+			if saved.has("guide") and saved.guide.step >= 5:
+				saved.guide.step += 1
+	saved.version = int(saved.version) + 1
+	return saved
 
 
 static func save_game(state: Dictionary, path := PATH) -> bool:

@@ -1,13 +1,14 @@
 # Every word the player reads goes through here, so the game can be
 # translated into Arabic and French later. `{name}` marks a value filled in
-# by t(). The English words are generated from the web version.
+# by t(). The English words come from the web version (words_en.gd,
+# generated) and, for what only this game has, words_more.gd.
 class_name Words
 
 static var _vars := RegEx.create_from_string("\\{(\\w+)\\}")
 
 
 static func t(key: String, vars := {}) -> String:
-	var text: String = WordsEn.WORDS.get(key, key)
+	var text: String = WordsMore.WORDS.get(key, WordsEn.WORDS.get(key, key))
 	var out := ""
 	var at := 0
 	for m in _vars.search_all(text):

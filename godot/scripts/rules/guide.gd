@@ -12,6 +12,7 @@ const STEPS := [
 	{"id": "plant", "tab": "garden", "target": "empty_plot"},
 	{"id": "harvest", "tab": "garden", "target": "ready_plot"},
 	{"id": "sell", "tab": "garden", "target": "sell"},
+	{"id": "friend", "tab": "garden", "target": "visitor"},
 	# The last step only shows the goal; the player closes it.
 	{"id": "goal", "tab": "home", "target": "goal"},
 ]
@@ -32,6 +33,8 @@ static func step_done(state: Dictionary, id: String) -> bool:
 			return state.stats.harvests > 0
 		"sell":
 			return state.stats.sold > 0
+		"friend":
+			return state.friends.size() > 0
 	return false
 
 
